@@ -250,6 +250,12 @@ void ABasketBall::RoundHasStarted_Implementation()
 			Root->PutRigidBodyToSleep();
 		}
 		PossessorToIgnore = nullptr;
+		UPrimitiveComponent *Root = Cast<UPrimitiveComponent>(GetRootComponent());
+
+		Root->SetSimulatePhysics(true);
+		Root->SetEnableGravity(true);
+		SetActorEnableCollision(true);
+		
 	}
 }
 
