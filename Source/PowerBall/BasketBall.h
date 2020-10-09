@@ -38,7 +38,7 @@ class POWERBALL_API ABasketBall : public AActor
 	float NegDistanceTravelled;
 
 	/** [server + local] True if the ball is charging */
-	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = Soccer)
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "PowerBall")
 	bool IsCharging;
 
 	/** [server] The time when the ball began charging */
@@ -68,18 +68,18 @@ public:
 	//End AActor interface
 
 	/** Called by the GameMode object when the next round has begun */
-	UFUNCTION(BlueprintNativeEvent, Category = Soccer)
+	UFUNCTION(BlueprintNativeEvent, Category = "PowerBall")
 	void RoundHasStarted();
 
 	/** Called by a character object when it has been destroyed */
-	UFUNCTION(BlueprintNativeEvent, Category = Soccer)
+	UFUNCTION(BlueprintNativeEvent, Category = "PowerBall")
 	void CharacterHasDestroyed(APlayerCharacter *Character);
 
 	/** Gets the game state */
 	APowerBallGameState* GetGameState();
 
 	/** True if the ball has no possessor and is not in a goal. Should only be called by the authority entity. */
-	UFUNCTION(BlueprintCallable, Category = Soccer)
+	UFUNCTION(BlueprintCallable, Category = "PowerBall")
 	bool IsFree();
 
 	/** True if the player can possess the ball */

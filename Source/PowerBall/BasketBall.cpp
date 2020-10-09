@@ -8,8 +8,8 @@
 #include "PlayerCharacterController.h"
 #include "PowerBallGameState.h"
 
-#define DISTANCE_IN_FRONT_OF_POSSESSOR		90.f
-#define POSSESSOR_Z_OFFSET					-60.f
+#define DISTANCE_IN_FRONT_OF_POSSESSOR		10.f
+#define POSSESSOR_Z_OFFSET					-10.f
 
 ABasketBall::ABasketBall(const class FObjectInitializer& OI)
 	: Super(OI)
@@ -98,7 +98,7 @@ void ABasketBall::ClientSimulateFreeMovingBall()
 					FSmoothPhysicsState lhs = proxyStates[i];
 
 					// Use the time between the two slots to determine if interpolation is necessary
-					int64 length = (int64)(rhs.timestamp - lhs.timestamp);
+					float length = (rhs.timestamp - lhs.timestamp);
 					double t = 0.0F;
 					// As the time difference gets closer to 100 ms t gets closer to 1 in
 					// which case rhs is only used
@@ -160,12 +160,11 @@ void ABasketBall::BeginPlay()
 		// It will get replicated to clients for when they need to access
 		// the ball itself to get information such as who possesses it.
 
-		auto g = GetWorld()->GetGameState<APowerBallGameState>();
 
-		if ( g != nullptr && ThisBasketBall != nullptr)
+		if ( ThisBasketBall != nullptr )
 		{
 
-			g->SetBasketBall(ThisBasketBall);
+			GetGameState()->SetBasketBall(ThisBasketBall);
 
 		}
 	}
@@ -180,9 +179,6 @@ APlayerCharacter* ABasketBall::GetPossessor() {
 void ABasketBall::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
-	if ( !RoundHasStarted() )
-		return;
 
 	if (nullptr != Possessor)
 	{
@@ -302,9 +298,9 @@ void ABasketBall::MoveWithPossessor()
 	NegDistanceTravelled += GetPossessor()->GetVelocity().Size() * -0.015f;
 
 	// All platforms should move the same way if there is a possessor.
-	//SetActorLocationAndRotation(Possessor->GetActorLocation() + Possessor->GetActorForwardVector() * DISTANCE_IN_FRONT_OF_POSSESSOR + FVector(0.0f, 0.0f, POSSESSOR_Z_OFFSET),
-	//	FRotator(NegDistanceTravelled, Possessor->GetActorRotation().Yaw, 0.0f));
-	SetActorLocationAndRotation(GetPossessor()->GetMesh()->GetSocketLocation(FName("BallSocket")),FRotator(0,0,0));
+	SetActorLocationAndRotation(Possessor->GetActorLocation() + Possessor->GetActorForwardVector() * DISTANCE_IN_FRONT_OF_POSSESSOR + FVector(0.0f, 0.0f, POSSESSOR_Z_OFFSET),
+		FRotator(NegDistanceTravelled, Possessor->GetActorRotation().Yaw, 0.0f));
+	//SetActorLocationAndRotation(GetPossessor()->GetMesh()->GetSocketLocation(FName("BallSocket")),FRotator(0,0,0));
 
 }
 
