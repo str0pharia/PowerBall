@@ -163,9 +163,7 @@ void ABasketBall::BeginPlay()
 
 		if ( ThisBasketBall != nullptr )
 		{
-
 			GetGameState()->SetBasketBall(ThisBasketBall);
-
 		}
 	}
 }
@@ -313,7 +311,7 @@ void ABasketBall::MoveWithPossessor()
 /** Sets the current ball possessor */
 void ABasketBall::SetPossessor(APlayerCharacter* Player)
 {
-	if (GetLocalRole()  < ROLE_Authority)
+	if (GetLocalRole() < ROLE_Authority)
 	{
 		// Safety check. Only authority entities should drive the ball.
 	}

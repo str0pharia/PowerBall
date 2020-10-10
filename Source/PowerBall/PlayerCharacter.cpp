@@ -7,6 +7,8 @@
 #include "GameFramework/PawnMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Net/UnrealNetwork.h"
+#include "Engine/Engine.h"
 #include "HealthComponent.h"
 #include "Weapon.h"
 
@@ -28,6 +30,18 @@ APlayerCharacter::APlayerCharacter()
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health"));
 
 	SkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
+
+}
+
+void APlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+
+
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+
+	DOREPLIFETIME(APlayerCharacter, CurrentWeapon);
+
 
 }
 

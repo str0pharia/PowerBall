@@ -45,6 +45,7 @@ protected:
 	UFUNCTION()
 	void OnHealthChanged(UHealthComponent* HealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
+	UPROPERTY(Replicated,VisibleAnywhere, BlueprintReadWrite, Category = "Weapon")
 	AWeapon* CurrentWeapon;
 
 	void PrimaryActionStart();
@@ -59,6 +60,8 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	virtual FVector GetPawnViewLocation() const override; 
 

@@ -18,6 +18,7 @@ AWeapon::AWeapon()
 
 	EffectOriginSocketName = FName("Source");
 
+	SetReplicates(true);
 }
 
 // Called when the game starts or when spawned
@@ -108,3 +109,4 @@ void AWeapon::Fire()
 
 
 }
+
