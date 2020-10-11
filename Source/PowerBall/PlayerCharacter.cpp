@@ -31,6 +31,8 @@ APlayerCharacter::APlayerCharacter()
 
 	SkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
 
+	SetReplicates(true);
+
 }
 
 void APlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -51,6 +53,20 @@ void APlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 	
 	HealthComponent->OnHealthChanged.AddDynamic(this, &APlayerCharacter::OnHealthChanged);
+
+	if ( GetLocalRole() == ROLE_Authority)
+	{
+		FActorSpawnParameters SpawnParams; 
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+		CurrentWeapon = GetWorld()->SpawnActor<AWeapon>(DefaultWeapon,FVector(0),FRotator(0),SpawnParams);
+		if ( CurrentWeapon != nullptr ) 
+		{	
+			CurrentWeapon->SetOwner(this);
+			CurrentWeapon->AttachToComponent(SkeletalMesh,FAttachmentTransformRules::SnapToTargetNotIncludingScale,"WeaponSocket");
+		}
+
+	}
 }
 
 // Called every frame
@@ -87,11 +103,9 @@ void APlayerCharacter::OnHealthChanged(UHealthComponent* HealthComp, float Healt
 void APlayerCharacter::PrimaryActionStart()
 {
 
-	if ( CurrentWeapon ) 
-	{
-
-		CurrentWeapon->Fire();
-	}
+		if ( CurrentWeapon != nullptr)
+			CurrentWeapon->Fire();
+	
 }
 
 void APlayerCharacter::PrimaryActionStop()
@@ -129,6 +143,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis("LookUp",this,&APlayerCharacter::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("Turn",this,&APlayerCharacter::AddControllerYawInput);
 
+	PlayerInputComponent->BindAction("ActionButton_A",EInputEvent::IE_Pressed,this,&APlayerCharacter::PrimaryActionStart);
+	PlayerInputComponent->BindAction("ActionButton_A",EInputEvent::IE_Released,this,&APlayerCharacter::PrimaryActionStop);
 }
 
 FVector APlayerCharacter::GetPawnViewLocation() const
@@ -147,7 +163,7 @@ FVector APlayerCharacter::GetPawnViewLocation() const
 bool APlayerCharacter::PossessesBall() 
 {
 
-	return true;
+	return false;
 }
 
 

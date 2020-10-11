@@ -42,19 +42,19 @@ protected:
 
 	void MoveRight(float axis);	
 
+	USkeletalMeshComponent* SkeletalMesh;
+
+public:	
+
 	UFUNCTION()
 	void OnHealthChanged(UHealthComponent* HealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
-	UPROPERTY(Replicated,VisibleAnywhere, BlueprintReadWrite, Category = "Weapon")
+	UPROPERTY(Replicated,VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	AWeapon* CurrentWeapon;
 
 	void PrimaryActionStart();
 
 	void PrimaryActionStop();
-
-	USkeletalMeshComponent* SkeletalMesh;
-
-public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -71,7 +71,9 @@ public:
 
 	USkeletalMeshComponent* GetSkeletalMesh();
 
-
 	UHealthComponent* HealthComponent; 
+
+	UPROPERTY(EditDefaultsOnly, Category = "Player")
+	TSubclassOf<AWeapon> DefaultWeapon; 
 
 };

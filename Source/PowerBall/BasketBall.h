@@ -23,7 +23,6 @@ class POWERBALL_API ABasketBall : public AActor
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "PowerBall")
 	APlayerCharacter* LastPossessor;
 
-
 	UFUNCTION(BlueprintCallable)
 	APlayerCharacter* GetPossessor();
 

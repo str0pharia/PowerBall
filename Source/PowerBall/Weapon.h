@@ -19,12 +19,13 @@ public:
 	// Sets default values for this actor's properties
 	AWeapon();
 
-
 	UPROPERTY(EditAnywhere, Category = "Weapon")
 	USkeletalMeshComponent* WeaponMesh = nullptr;
 
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void Fire();
+
+	UFUNCTION(Server, Reliable, WithValidation) 
+	void ServerFire();
 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Weapon")
 	TSubclassOf<UDamageType> DamageType;
@@ -33,8 +34,18 @@ public:
 	UParticleSystem* TriggerEffect;
 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Weapon")
-	UParticleSystem* ImpactEffect;
+	UParticleSystem* DefaultImpactEffect;
 
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Weapon")
+	UParticleSystem* FleshImpactEffect;
+
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Weapon")
+	UParticleSystem* FleshCriticalImpactEffect;
+
+	void SpawnEffects(FVector TraceEnd);
+
+	
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Weapon")
 	UParticleSystem* TracerEffect;
 
@@ -42,14 +53,5 @@ public:
 	FName EffectOriginSocketName;
 
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-	
-
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
 };

@@ -6,6 +6,7 @@
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
 
 // Sets default values
 AWeapon::AWeapon()
@@ -21,26 +22,17 @@ AWeapon::AWeapon()
 	SetReplicates(true);
 }
 
-// Called when the game starts or when spawned
-void AWeapon::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
-
-// Called every frame
-void AWeapon::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
 void AWeapon::Fire() 
 {
+	if ( GetLocalRole() < ROLE_Authority )
+	{
 
-	AActor* ActorOwner = AActor::GetOwner();
+		ServerFire();
 
-	if (ActorOwner) 
+	}
+
+	AActor* ActorOwner = GetOwner();
+	if (ActorOwner != nullptr) 
 	{ 
 		FVector EyeLocation;
 		FRotator EyeRotation;
@@ -49,13 +41,15 @@ void AWeapon::Fire()
 
 		FVector ShotDirection = EyeRotation.Vector();
 		FVector TraceEnd = EyeLocation + (EyeRotation.Vector() * 10000);
-		FVector TracerEndPoint = TraceEnd;
+
 
 		FCollisionQueryParams QueryParams;
 		QueryParams.AddIgnoredActor(ActorOwner);
 		QueryParams.AddIgnoredActor(this);
 		QueryParams.bTraceComplex = true;
+		QueryParams.bReturnPhysicalMaterial = true;
 
+		FVector TracerEndPoint = TraceEnd;
 		FHitResult Hit;
 		if ( GetWorld()->LineTraceSingleByChannel(Hit,EyeLocation,TraceEnd,ECC_GameTraceChannel1,QueryParams) ) 
 		{
@@ -63,18 +57,34 @@ void AWeapon::Fire()
 				// On Hit
 
 				AActor* HitActor = Hit.GetActor();
-
 				UGameplayStatics::ApplyPointDamage(HitActor,20.0f,ShotDirection,Hit,ActorOwner->GetInstigatorController(),this,DamageType);
 
-
-				if ( ImpactEffect)
+				EPhysicalSurface SurfaceType  = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
+				UParticleSystem* SelectedEffect = nullptr;
+				switch (SurfaceType)
 				{
-					
-					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(),ImpactEffect,Hit.ImpactPoint,Hit.ImpactNormal.Rotation());
-
+					// Flesh
+					case SurfaceType1:
+							SelectedEffect = FleshImpactEffect;
+						break;
+					// Flesh Critical	
+					case SurfaceType2:
+							SelectedEffect = FleshCriticalImpactEffect;
+						break;
+					default:
+							SelectedEffect = DefaultImpactEffect;	
+						break;
 
 				}
 
+				
+				if (SelectedEffect)
+				{
+					
+					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(),SelectedEffect,Hit.ImpactPoint,Hit.ImpactNormal.Rotation());
+
+
+				}
 
 				TracerEndPoint = Hit.ImpactPoint;
 
@@ -83,6 +93,15 @@ void AWeapon::Fire()
 
 
 		DrawDebugLine(GetWorld(),EyeLocation,TraceEnd,FColor::White,false,1.0f,0,1.0f);	
+
+		SpawnEffects(TracerEndPoint);
+
+	}
+
+}
+
+void AWeapon::SpawnEffects(FVector TraceEnd) 
+{
 
 		if ( TriggerEffect )
 		{
@@ -99,14 +118,21 @@ void AWeapon::Fire()
 			if ( TraceEffectInstance ) 
 			{
 				
-				TraceEffectInstance->SetVectorParameter("Target",TracerEndPoint);
+				TraceEffectInstance->SetVectorParameter("Target",TraceEnd);
 
-			}
+			}	
 		}
-
-	}
 
 
 
 }
 
+void AWeapon::ServerFire_Implementation() 
+{
+	Fire();
+}
+
+bool AWeapon::ServerFire_Validate() 
+{
+	return true;
+}
