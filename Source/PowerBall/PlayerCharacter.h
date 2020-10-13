@@ -14,6 +14,7 @@ class AWeapon;
 class UInputComponent;
 class USkeletalMeshComponent;
 class APowerBallGameState;
+class USphereCollision;
 
 UCLASS()
 class POWERBALL_API APlayerCharacter : public ACharacter
@@ -21,8 +22,14 @@ class POWERBALL_API APlayerCharacter : public ACharacter
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
+
 	APlayerCharacter();
+
+	virtual void Tick(float DeltaTime) override;
+
+	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UCameraComponent* CameraObject;
@@ -33,8 +40,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
 	bool bDied = false;
 
-	UFUNCTION()
-	void OnHealthChanged(UHealthComponent* HealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
 	UPROPERTY(Replicated,VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	AWeapon* CurrentWeapon;
@@ -42,25 +47,20 @@ public:
 	void PrimaryActionStart();
 
 	void PrimaryActionStop();
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
-
-	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	bool PossessesBall();
 
 	virtual FVector GetPawnViewLocation() const override; 
 
 	FVector GetBallSocketLocation();
-
-	bool PossessesBall();
 
 	UHealthComponent* HealthComponent; 
 
 	UPROPERTY(EditDefaultsOnly, Category = "Player")
 	TSubclassOf<AWeapon> DefaultWeapon; 
 
+	UFUNCTION()
+	void OnHealthChanged(UHealthComponent* HealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
 	bool IsAlive();
 
@@ -72,6 +72,7 @@ public:
 	void MoveForward(float axis);
 
 	void MoveRight(float axis);	
+
 
 
 };

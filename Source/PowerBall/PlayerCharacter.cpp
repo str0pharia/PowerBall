@@ -27,7 +27,7 @@ APlayerCharacter::APlayerCharacter()
 	CameraObject = CreateDefaultSubobject<UCameraComponent>(TEXT("MainCamera"));
 	CameraObject->SetupAttachment(SpringArm);
 
-	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_GameTraceChannel1,ECR_Ignore);
+	GetCapsuleComponent()->SetGenerateOverlapEvents(true);
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health"));
 

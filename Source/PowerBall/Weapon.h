@@ -10,6 +10,22 @@ class USkeletalMeshComponent;
 class UParticleSystem;
 class UDamageType;
 
+USTRUCT()
+struct FHitScanTrace
+{
+
+	GENERATED_BODY();
+
+	public:
+
+		UPROPERTY()
+		FVector_NetQuantize TraceFrom;
+
+		UPROPERTY()
+		FVector_NetQuantize TraceTo;
+	
+};
+
 UCLASS()
 class POWERBALL_API AWeapon : public AActor
 {
@@ -19,7 +35,7 @@ public:
 	// Sets default values for this actor's properties
 	AWeapon();
 
-	UPROPERTY(EditAnywhere, Category = "Weapon")
+	UPROPERTY(EditAnywhere, Category = "Weapon Mesh")
 	USkeletalMeshComponent* WeaponMesh = nullptr;
 
 	void Fire();
@@ -27,31 +43,41 @@ public:
 	UFUNCTION(Server, Reliable, WithValidation) 
 	void ServerFire();
 
-	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Weapon")
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Weapon Data")
 	TSubclassOf<UDamageType> DamageType;
 
-	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Weapon")
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Weapon Effects")
 	UParticleSystem* TriggerEffect;
 
-	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Weapon")
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Weapon Effects")
 	UParticleSystem* DefaultImpactEffect;
 
-	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Weapon")
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Weapon Effects")
 	UParticleSystem* FleshImpactEffect;
 
 
-	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Weapon")
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Weapon Effects")
 	UParticleSystem* FleshCriticalImpactEffect;
+
 
 	void SpawnEffects(FVector TraceEnd);
 
 	
-	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Weapon")
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Weapon Effects")
 	UParticleSystem* TracerEffect;
 
-	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Weapon")
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Weapon Effects")
 	FName EffectOriginSocketName;
 
+	UPROPERTY(ReplicatedUsing=OnRep_HitScanTrace)
+	FHitScanTrace HitScanTrace; 
 
+	UFUNCTION()
+	void OnRep_HitScanTrace();
+
+	float LastFireTime = 0;
 
 };

@@ -6,6 +6,7 @@
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "Net/UnrealNetwork.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
 
 // Sets default values
@@ -22,6 +23,14 @@ AWeapon::AWeapon()
 	SetReplicates(true);
 }
 
+
+void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME_CONDITION(AWeapon, HitScanTrace, COND_SkipOwner);
+}
+
+
 // Cast/Trigger Spell
 void AWeapon::Fire() 
 {
@@ -35,14 +44,17 @@ void AWeapon::Fire()
 	AActor* ActorOwner = GetOwner();
 	if (ActorOwner != nullptr) 
 	{ 
-
 		/* LINE TRACE: CALCULATE START & STOP POSITIONS */
-		FVector EyeLocation;
-		FRotator EyeRotation;
+		FVector EyeLocation; FRotator EyeRotation;
+		
 		ActorOwner->GetActorEyesViewPoint(EyeLocation,EyeRotation);
-		FVector ShotDirection = EyeRotation.Vector();
-		FVector TraceEnd = EyeLocation + (EyeRotation.Vector() * 10000);
-		FVector TracerEndPoint = TraceEnd;
+
+		FVector A = WeaponMesh->GetSocketLocation(EffectOriginSocketName);
+		FVector B = EyeLocation + (EyeRotation.Vector() * 10000);
+
+		FVector ShotDirection = ( A != FVector(0) ) ? WeaponMesh->GetSocketRotation(EffectOriginSocketName).Vector() : EyeRotation.Vector();
+
+		FVector TracerEndPoint = B;
 
 		/* LINE TRACE: CONFIGURE PARAMETERS */
 		FCollisionQueryParams QueryParams;
@@ -53,7 +65,7 @@ void AWeapon::Fire()
 
 		/* PERFORM LINE TRACE */
 		FHitResult Hit;
-		if ( GetWorld()->LineTraceSingleByChannel(Hit,EyeLocation,TraceEnd,ECC_GameTraceChannel1,QueryParams) ) 
+		if ( GetWorld()->LineTraceSingleByChannel(Hit,A,B,ECC_GameTraceChannel1,QueryParams) ) 
 		{
 
 				/* ON HIT */
@@ -91,11 +103,17 @@ void AWeapon::Fire()
 		}
 
 
-		DrawDebugLine(GetWorld(),EyeLocation,TraceEnd,FColor::White,false,1.0f,0,1.0f);	
+		DrawDebugLine(GetWorld(),A,TracerEndPoint,FColor::White,false,1.0f,0,1.0f);	
 
 		/* SPAWN TRIGGER AND/OR TRACER EFFECT */
 		SpawnEffects(TracerEndPoint);
 
+		if ( GetLocalRole() == ROLE_Authority) 
+		{
+			HitScanTrace.TraceTo = TracerEndPoint;
+		}
+
+		LastFireTime = GetWorld()->TimeSeconds;
 	}
 
 }
@@ -122,13 +140,22 @@ void AWeapon::SpawnEffects(FVector TraceEnd)
 		}
 }
 
-/* Magic Attacl RPC */
+/* Magic Attack RPC */
 void AWeapon::ServerFire_Implementation() 
 {
 	Fire();
 }
 
-bool AWeapon::ServerFire_Validate() 
-{
-	return true;
+bool AWeapon::ServerFire_Validate()  
+{ 
+	return true; 
 }
+
+/* Get Hit Scan */
+void AWeapon::OnRep_HitScanTrace()
+{
+	SpawnEffects(HitScanTrace.TraceTo);
+}
+
+
+
