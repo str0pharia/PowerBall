@@ -13,7 +13,7 @@ class UHealthComponent;
 class AWeapon;
 class UInputComponent;
 class USkeletalMeshComponent;
-
+class APowerBallGameState;
 
 UCLASS()
 class POWERBALL_API APlayerCharacter : public ACharacter
@@ -32,19 +32,6 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
 	bool bDied = false;
-
-
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-	void MoveForward(float axis);
-
-	void MoveRight(float axis);	
-
-	USkeletalMeshComponent* SkeletalMesh;
-
-public:	
 
 	UFUNCTION()
 	void OnHealthChanged(UHealthComponent* HealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
@@ -69,11 +56,22 @@ public:
 
 	bool PossessesBall();
 
-	USkeletalMeshComponent* GetSkeletalMesh();
-
 	UHealthComponent* HealthComponent; 
 
 	UPROPERTY(EditDefaultsOnly, Category = "Player")
 	TSubclassOf<AWeapon> DefaultWeapon; 
+
+
+	bool IsAlive();
+
+
+  protected:
+
+	virtual void BeginPlay() override;
+
+	void MoveForward(float axis);
+
+	void MoveRight(float axis);	
+
 
 };

@@ -4,4 +4,9 @@
 
 #include "CoreMinimal.h"
 
-#define COLLISION_WEAPON    ECC_GameTraceChannel1
+// Collision Channels
+#define COLLISION_WEAPON        ECC_GameTraceChannel1
+
+// Surface Types
+#define SURFACE_FLESHDEFAULT    SurfaceType1
+#define SURFACE_FLESHCRITICAL   SurfaceType2

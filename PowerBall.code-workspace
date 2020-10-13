@@ -15,7 +15,8 @@
 			"iosfwd": "cpp",
 			"xlocbuf": "cpp",
 			"locale": "cpp",
-			"string": "cpp"
+			"string": "cpp",
+			"chrono": "cpp"
 		}
 	},
 	"extensions": {

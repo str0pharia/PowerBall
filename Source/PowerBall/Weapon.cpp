@@ -22,52 +22,56 @@ AWeapon::AWeapon()
 	SetReplicates(true);
 }
 
+// Cast/Trigger Spell
 void AWeapon::Fire() 
 {
+	/* RPC */
 	if ( GetLocalRole() < ROLE_Authority )
 	{
-
 		ServerFire();
-
 	}
 
+	/* GET OWNER (Actor in possession of this weapon) */
 	AActor* ActorOwner = GetOwner();
 	if (ActorOwner != nullptr) 
 	{ 
+
+		/* LINE TRACE: CALCULATE START & STOP POSITIONS */
 		FVector EyeLocation;
 		FRotator EyeRotation;
-
 		ActorOwner->GetActorEyesViewPoint(EyeLocation,EyeRotation);
-
 		FVector ShotDirection = EyeRotation.Vector();
 		FVector TraceEnd = EyeLocation + (EyeRotation.Vector() * 10000);
+		FVector TracerEndPoint = TraceEnd;
 
-
+		/* LINE TRACE: CONFIGURE PARAMETERS */
 		FCollisionQueryParams QueryParams;
 		QueryParams.AddIgnoredActor(ActorOwner);
 		QueryParams.AddIgnoredActor(this);
 		QueryParams.bTraceComplex = true;
 		QueryParams.bReturnPhysicalMaterial = true;
 
-		FVector TracerEndPoint = TraceEnd;
+		/* PERFORM LINE TRACE */
 		FHitResult Hit;
 		if ( GetWorld()->LineTraceSingleByChannel(Hit,EyeLocation,TraceEnd,ECC_GameTraceChannel1,QueryParams) ) 
 		{
 
-				// On Hit
-
+				/* ON HIT */
 				AActor* HitActor = Hit.GetActor();
-				UGameplayStatics::ApplyPointDamage(HitActor,20.0f,ShotDirection,Hit,ActorOwner->GetInstigatorController(),this,DamageType);
 
-				EPhysicalSurface SurfaceType  = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
+				/* APPLY DAMAGE */	
+				UGameplayStatics::ApplyPointDamage(HitActor,20.0f,ShotDirection,Hit,ActorOwner->GetInstigatorController(),this,DamageType);
+				
+				/* SELECT IMPACT EFFECT BASED ON SURFACE TYPE */ 
 				UParticleSystem* SelectedEffect = nullptr;
+				EPhysicalSurface SurfaceType  = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
 				switch (SurfaceType)
 				{
 					// Flesh
 					case SurfaceType1:
 							SelectedEffect = FleshImpactEffect;
 						break;
-					// Flesh Critical	
+					// Flesh Critical 
 					case SurfaceType2:
 							SelectedEffect = FleshCriticalImpactEffect;
 						break;
@@ -77,56 +81,48 @@ void AWeapon::Fire()
 
 				}
 
-				
+				/* SPAWN IMPACT EFFECT */
 				if (SelectedEffect)
-				{
-					
+				{					
 					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(),SelectedEffect,Hit.ImpactPoint,Hit.ImpactNormal.Rotation());
-
-
 				}
 
 				TracerEndPoint = Hit.ImpactPoint;
-
-
 		}
 
 
 		DrawDebugLine(GetWorld(),EyeLocation,TraceEnd,FColor::White,false,1.0f,0,1.0f);	
 
+		/* SPAWN TRIGGER AND/OR TRACER EFFECT */
 		SpawnEffects(TracerEndPoint);
 
 	}
 
 }
 
+// Spawn Magic Effect Emitters
 void AWeapon::SpawnEffects(FVector TraceEnd) 
 {
 
+		/* TRIGGER EFFECT */
 		if ( TriggerEffect )
 		{
-
 			UGameplayStatics::SpawnEmitterAttached(TriggerEffect,WeaponMesh,EffectOriginSocketName);
-
 		}
 
+		/* TRACER EFFECT */
 		if ( TracerEffect ) 
 		{
 			FVector SourceLocation = WeaponMesh->GetSocketLocation(EffectOriginSocketName);
-
 			UParticleSystemComponent* TraceEffectInstance = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(),TracerEffect,SourceLocation);
 			if ( TraceEffectInstance ) 
 			{
-				
 				TraceEffectInstance->SetVectorParameter("Target",TraceEnd);
-
 			}	
 		}
-
-
-
 }
 
+/* Magic Attacl RPC */
 void AWeapon::ServerFire_Implementation() 
 {
 	Fire();

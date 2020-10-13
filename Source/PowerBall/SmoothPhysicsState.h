@@ -8,7 +8,7 @@ struct FSmoothPhysicsState
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY()
-	float timestamp;
+	uint64 timestamp;
 	UPROPERTY()
 	FVector pos;
 	UPROPERTY()

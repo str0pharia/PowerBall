@@ -4,6 +4,14 @@
 #include "PlayerCharacterController.h"
 #include "GameFramework/GameStateBase.h"
 
+
+APlayerCharacterController::APlayerCharacterController(const class FObjectInitializer& OI)
+	: Super(OI)
+{
+
+
+}
+
 void APlayerCharacterController::ServerRequestServerTime_Implementation(APlayerController* requester, float requestWorldTime
 )
 {
@@ -27,11 +35,12 @@ void APlayerCharacterController::ClientReportServerTime_Implementation(float req
     ServerTime = adjustedTime;
 }
 
+
 void APlayerCharacterController::ReceivedPlayer()
 {
     Super::ReceivedPlayer();
 
-    if(IsLocalController())
+    if(GetLocalRole() < ROLE_Authority)
     {
         ServerRequestServerTime(
             this,
@@ -39,3 +48,4 @@ void APlayerCharacterController::ReceivedPlayer()
         );
     }
 }
+

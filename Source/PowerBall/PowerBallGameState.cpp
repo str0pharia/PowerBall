@@ -4,11 +4,13 @@
 #include "PowerBallGameState.h"
 #include "PlayerCharacterController.h"
 
+
 float APowerBallGameState::GetServerWorldTimeSeconds() const
 {
-    if(APlayerCharacterController* pc = (APlayerCharacterController*)GetGameInstance()->
-        GetFirstLocalPlayerController(GetWorld())
-    )
+    APlayerCharacterController* pc = GetWorld()->GetFirstPlayerController<APlayerCharacterController>();
+    
+
+    if ( pc != nullptr )
     {
         return pc->GetServerTime();
     }

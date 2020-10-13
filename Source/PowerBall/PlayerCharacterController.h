@@ -6,14 +6,15 @@
 #include "GameFramework/PlayerController.h"
 #include "PlayerCharacterController.generated.h"
 
+
+class APowerBallGameState;
 /**
  * 
  */
 UCLASS()
 class POWERBALL_API APlayerCharacterController : public APlayerController
 {
-	GENERATED_BODY()
-	public:
+  GENERATED_UCLASS_BODY()
 
 /** Returns the network-synced time from the server.
   * Corresponds to GetWorld()->GetTimeSeconds()
@@ -35,8 +36,10 @@ void ClientReportServerTime(float requestWorldTime,float serverTime);
 /** Requests current server time so accurate lag
   * compensation can be performed in ClientReportServerTime
   * based on the round-trip duration */
-UFUNCTION(Server, Reliable, WithValidation)
+ UFUNCTION(Server, Reliable, WithValidation)
 void ServerRequestServerTime(APlayerController* requester,float requestWorldTime);
 
-float ServerTime = 0.0f;
+  float ServerTime = 0.0f;
+
+
 };

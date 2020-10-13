@@ -11,6 +11,8 @@
 #include "Engine/Engine.h"
 #include "HealthComponent.h"
 #include "Weapon.h"
+#include "PowerBallGameState.h"
+#include "BasketBall.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -29,10 +31,7 @@ APlayerCharacter::APlayerCharacter()
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health"));
 
-	SkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
-
 	SetReplicates(true);
-
 }
 
 void APlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -51,11 +50,11 @@ void APlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	HealthComponent->OnHealthChanged.AddDynamic(this, &APlayerCharacter::OnHealthChanged);
 
-	if ( GetLocalRole() == ROLE_Authority)
-	{
+
+
 		FActorSpawnParameters SpawnParams; 
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
@@ -63,11 +62,14 @@ void APlayerCharacter::BeginPlay()
 		if ( CurrentWeapon != nullptr ) 
 		{	
 			CurrentWeapon->SetOwner(this);
-			CurrentWeapon->AttachToComponent(SkeletalMesh,FAttachmentTransformRules::SnapToTargetNotIncludingScale,"WeaponSocket");
+			CurrentWeapon->AttachToComponent(FindComponentByClass<USkeletalMeshComponent>(),FAttachmentTransformRules::SnapToTargetNotIncludingScale,"WeaponSocket");
 		}
 
-	}
 }
+
+
+
+
 
 // Called every frame
 void APlayerCharacter::Tick(float DeltaTime)
@@ -166,11 +168,12 @@ bool APlayerCharacter::PossessesBall()
 	return false;
 }
 
-
-USkeletalMeshComponent* APlayerCharacter::GetSkeletalMesh()
+bool APlayerCharacter::IsAlive() 
 {
 
-	return SkeletalMesh;
-
-
+	return (HealthComponent->Health > 0);
 }
+
+
+
+
