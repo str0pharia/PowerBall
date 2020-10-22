@@ -31,7 +31,13 @@ APlayerCharacter::APlayerCharacter()
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health"));
 
+	PlayerMesh = FindComponentByClass<USkeletalMeshComponent>();
+
 	SetReplicates(true);
+}
+
+USkeletalMeshComponent* APlayerCharacter::GetPlayerMesh() {
+	return PlayerMesh;
 }
 
 void APlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -83,7 +89,10 @@ FVector APlayerCharacter::GetBallSocketLocation()
 	auto mesh = FindComponentByClass<USkeletalMeshComponent>();
 	return mesh->GetSocketLocation(FName("BallSocket"));
 
+	
+
 }
+
 
 void APlayerCharacter::OnHealthChanged(UHealthComponent* HealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
 {
@@ -104,9 +113,12 @@ void APlayerCharacter::OnHealthChanged(UHealthComponent* HealthComp, float Healt
 
 void APlayerCharacter::PrimaryActionStart()
 {
-
-		if ( CurrentWeapon != nullptr)
+		if ( PossessesBall() ) {
+			GetWorld()->GetGameState<APowerBallGameState>()->GetBasketBall()->Launch();
+		}
+		else if ( CurrentWeapon != nullptr) {
 			CurrentWeapon->Fire();
+		}
 	
 }
 
@@ -164,8 +176,8 @@ FVector APlayerCharacter::GetPawnViewLocation() const
 
 bool APlayerCharacter::PossessesBall() 
 {
-
-	return false;
+	ABasketBall* B = (GetWorld()->GetGameState<APowerBallGameState>())->GetBasketBall();
+	return (B->Possessor == this);
 }
 
 bool APlayerCharacter::IsAlive() 

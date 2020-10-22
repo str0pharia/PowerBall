@@ -13,10 +13,8 @@
 ABasketBall::ABasketBall()
 {
 
-
-	
+		PrimaryActorTick.bCanEverTick = true;
 	PickUpSphere = CreateDefaultSubobject<USphereComponent>(TEXT("PickUpcollision"));
-
 
 	PickUpSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	PickUpSphere->SetGenerateOverlapEvents(true);
@@ -24,17 +22,41 @@ ABasketBall::ABasketBall()
 	PickUpSphere->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel2);
 	PickUpSphere->SetCollisionResponseToChannel(ECC_GameTraceChannel3,ECR_Overlap);
 	PickUpSphere->SetSphereRadius(145.0f);
+
+	
 	PickUpSphere->OnComponentBeginOverlap.AddDynamic(this,&ABasketBall::OnOverlapBegin);
 	
+
+	
+	BallMesh = FindComponentByClass<UStaticMeshComponent>();
 
 }
 
  void ABasketBall::BeginPlay() 
  {
-	 Possessor = nullptr;
-	 LastPossessor = nullptr;
+ 		Possessor = nullptr;
+	 	LastPossessor = nullptr;
 
+		(GetWorld()->GetGameState<APowerBallGameState>())->SetBasketBall(this);
+
+	
  }
+ 
+
+void ABasketBall::Tick(float DeltaTime) {
+	Super::Tick(DeltaTime);
+
+	
+	
+		if ( nullptr != Possessor ) {
+
+			MoveWithPossessor();
+		
+		}
+	
+	
+	
+}
 
 
 void ABasketBall::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -54,8 +76,22 @@ void ABasketBall::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 void ABasketBall::Possess(APlayerCharacter* Player) 
 {
 
+	/* RPC */
+	if ( GetLocalRole() < ROLE_Authority )
+	{
+		ServerPossess(Player);
+		
+	}
 
-	AttachToActor(Player->GetOwner(),FAttachmentTransformRules::SnapToTargetNotIncludingScale,FName("BallSocket"));
+
+
+
+	LastPossessor = Possessor;
+	Possessor = Player;
+
+	BallMesh->SetSimulatePhysics(false);
+	PickUpSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	AttachToComponent(Player->GetPlayerMesh(),FAttachmentTransformRules::KeepWorldTransform,FName("BallSocket"));
 
 }	
 
@@ -75,24 +111,122 @@ bool ABasketBall::ServerPossess_Validate(APlayerCharacter* Player)
 void ABasketBall::OnOverlapBegin( UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent*  OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
 
-	if ( IsFree() && OtherActor->ActorHasTag(FName("Player")) ) 
+
+	if ( OtherActor->ActorHasTag(TEXT("Player")))  
 	{
 
-		UE_LOG(LogTemp,Warning,TEXT("HASDSAD"));
-		APlayerCharacter* Player = (APlayerCharacter*)OtherActor->GetInstigator();
-		if ( Player != nullptr )
-			Possess(Player);
-
-
+		if ( IsFree() ) {
+			APlayerCharacter* Player = (APlayerCharacter*)OtherActor->GetInstigator();
+			if ( Player != nullptr ) {
+				Possess(Player);
+			}
+		}
 	}
-
 }
 
-
+void ABasketBall::OnOverlapEnd( UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent*  OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
+{
+		if ( OtherActor->ActorHasTag(TEXT("Player")))  
+		{
+			Eject();
+		}
+}
 bool ABasketBall::IsFree()
 {
-
 	return ( Possessor == nullptr);
+}
+
+void ABasketBall::MoveWithPossessor() 
+{
+	FHitResult Hit;
+	GetRootComponent()->SetWorldLocation(Possessor->GetActorLocation() + Possessor->GetBallSocketLocation() , false, &Hit, ETeleportType::TeleportPhysics);
+
+	//	NegDistanceTraveled += Possessor->GetVelocity().Size() * -0.015f;
+
+	// All platforms should move the same way if there is a possessor.
+//	SetActorLocationAndRotation(Possessor->GetActorLocation() + Possessor->GetActorForwardVector() * 10.0f + FVector(0.0f, 0.0f, 10.0f),
+//		FRotator(NegDistanceTraveled, Possessor->GetActorRotation().Yaw, 0.0f));
+}
+
+void ABasketBall::Launch() 
+{
+	/* RPC */
+	if ( GetLocalRole() < ROLE_Authority )
+	{
+
+		ServerLaunch();
+		
+	} 
+
+		
+		
+		BallMesh->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld,EDetachmentRule::KeepWorld,EDetachmentRule::KeepWorld,true));
+	
+		PickUpSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+
+	BallMesh->SetSimulatePhysics(true);
+//		BallMesh->SetSimulatePhysics(true);
+		//	SetActorLocationAndRotation(Possessor->GetBallSocketLocation(),Possessor->GetActorForwardVector().Rotation());
+	LastPossessor = Possessor;
+	Possessor = nullptr;
+
+	
+
+
 
 }
 
+/* Launch Ball RPC */
+void ABasketBall::ServerLaunch_Implementation() 
+{
+
+
+	Launch();
+}
+
+bool ABasketBall::ServerLaunch_Validate()  
+{ 
+	return true; 
+}
+
+
+void ABasketBall::ServerEject_Implementation() 
+{
+
+
+	Eject();
+}
+
+bool ABasketBall::ServerEject_Validate()  
+{ 
+	return true; 
+}
+
+void ABasketBall::Eject() 
+{
+	/* RPC */
+	if ( GetLocalRole() < ROLE_Authority )
+	{
+
+		ServerEject();
+		
+	} 
+	//	SetActorLocationAndRotation(Possessor->GetBallSocketLocation(),Possessor->GetActorForwardVector().Rotation());
+
+	
+		BallMesh->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld,EDetachmentRule::KeepWorld,EDetachmentRule::KeepWorld,true));
+	PickUpSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		BallMesh->SetSimulatePhysics(true);
+		//BallMesh->SetSimulatePhysics(true);
+	LastPossessor = Possessor;
+	Possessor = nullptr;
+
+		
+
+
+
+
+
+
+
+}

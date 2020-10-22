@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameState.h"
+#include "Net/UnrealNetwork.h"
+#include "Engine/Engine.h"
 #include "PowerBallGameState.generated.h"
 
 /**
@@ -30,7 +32,7 @@ class POWERBALL_API APowerBallGameState : public AGameState
 
 	protected:
 
-		ABasketBall* _Ball;
+		ABasketBall* _Ball = nullptr;
 
 
 	

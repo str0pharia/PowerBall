@@ -20,8 +20,6 @@ float APowerBallGameState::GetServerWorldTimeSeconds() const
     }
 }
 
-
-
 ABasketBall* APowerBallGameState::GetBasketBall()
 {
 

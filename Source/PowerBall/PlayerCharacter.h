@@ -64,6 +64,8 @@ public:
 
 	bool IsAlive();
 
+	USkeletalMeshComponent* GetPlayerMesh();
+
 
   protected:
 
@@ -73,6 +75,9 @@ public:
 
 	void MoveRight(float axis);	
 
+	USkeletalMeshComponent* PlayerMesh;
+
+	
 
 
 };
