@@ -69,8 +69,9 @@ void ABasketBall::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	DOREPLIFETIME(ABasketBall, Possessor);
 	DOREPLIFETIME(ABasketBall, LastPossessor);
 
-
 }
+
+
 
 
 void ABasketBall::Possess(APlayerCharacter* Player) 
@@ -80,13 +81,15 @@ void ABasketBall::Possess(APlayerCharacter* Player)
 	if ( GetLocalRole() < ROLE_Authority )
 	{
 		ServerPossess(Player);
-		
+
 	}
 
 
 
 
 	LastPossessor = Possessor;
+
+
 	Possessor = Player;
 
 	BallMesh->SetSimulatePhysics(false);
@@ -124,13 +127,7 @@ void ABasketBall::OnOverlapBegin( UPrimitiveComponent* OverlappedComponent, AAct
 	}
 }
 
-void ABasketBall::OnOverlapEnd( UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent*  OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
-{
-		if ( OtherActor->ActorHasTag(TEXT("Player")))  
-		{
-			Eject();
-		}
-}
+
 bool ABasketBall::IsFree()
 {
 	return ( Possessor == nullptr);
@@ -155,24 +152,25 @@ void ABasketBall::Launch()
 	{
 
 		ServerLaunch();
+
 		
 	} 
 
 		
-		
+
+
+	
 		BallMesh->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld,EDetachmentRule::KeepWorld,EDetachmentRule::KeepWorld,true));
 	
 		PickUpSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 
-	BallMesh->SetSimulatePhysics(true);
+		BallMesh->SetSimulatePhysics(true);
 //		BallMesh->SetSimulatePhysics(true);
 		//	SetActorLocationAndRotation(Possessor->GetBallSocketLocation(),Possessor->GetActorForwardVector().Rotation());
-	LastPossessor = Possessor;
-	Possessor = nullptr;
-
-	
 
 
+			LastPossessor = Possessor;
+			Possessor = nullptr;
 
 }
 
@@ -190,43 +188,4 @@ bool ABasketBall::ServerLaunch_Validate()
 }
 
 
-void ABasketBall::ServerEject_Implementation() 
-{
 
-
-	Eject();
-}
-
-bool ABasketBall::ServerEject_Validate()  
-{ 
-	return true; 
-}
-
-void ABasketBall::Eject() 
-{
-	/* RPC */
-	if ( GetLocalRole() < ROLE_Authority )
-	{
-
-		ServerEject();
-		
-	} 
-	//	SetActorLocationAndRotation(Possessor->GetBallSocketLocation(),Possessor->GetActorForwardVector().Rotation());
-
-	
-		BallMesh->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld,EDetachmentRule::KeepWorld,EDetachmentRule::KeepWorld,true));
-	PickUpSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-		BallMesh->SetSimulatePhysics(true);
-		//BallMesh->SetSimulatePhysics(true);
-	LastPossessor = Possessor;
-	Possessor = nullptr;
-
-		
-
-
-
-
-
-
-
-}

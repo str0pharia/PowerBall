@@ -50,7 +50,10 @@ void APlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(APlayerCharacter, CurrentWeapon);
 
 
+
 }
+
+
 
 // Called when the game starts or when spawned
 void APlayerCharacter::BeginPlay()

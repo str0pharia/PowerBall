@@ -38,10 +38,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Weapon Mesh")
 	USkeletalMeshComponent* WeaponMesh = nullptr;
 
-	void Fire();
+	virtual void Fire();
 
 	UFUNCTION(Server, Reliable, WithValidation) 
-	void ServerFire();
+	virtual void ServerFire();
 
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
@@ -63,7 +63,7 @@ public:
 	UParticleSystem* FleshCriticalImpactEffect;
 
 
-	void SpawnEffects(FVector TraceEnd);
+	virtual void SpawnEffects(FVector TraceEnd);
 
 	
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Weapon Effects")

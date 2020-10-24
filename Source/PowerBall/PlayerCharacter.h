@@ -66,7 +66,6 @@ public:
 
 	USkeletalMeshComponent* GetPlayerMesh();
 
-
   protected:
 
 	virtual void BeginPlay() override;
@@ -74,6 +73,8 @@ public:
 	void MoveForward(float axis);
 
 	void MoveRight(float axis);	
+
+
 
 	USkeletalMeshComponent* PlayerMesh;
 
