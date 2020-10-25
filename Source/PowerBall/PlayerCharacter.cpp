@@ -12,6 +12,7 @@
 #include "HealthComponent.h"
 #include "Weapon.h"
 #include "PowerBallGameState.h"
+
 #include "BasketBall.h"
 
 // Sets default values
@@ -87,15 +88,6 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 }
 
-FVector APlayerCharacter::GetBallSocketLocation()
-{
-	auto mesh = FindComponentByClass<USkeletalMeshComponent>();
-	return mesh->GetSocketLocation(FName("BallSocket"));
-
-	
-
-}
-
 
 void APlayerCharacter::OnHealthChanged(UHealthComponent* HealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
 {
@@ -116,15 +108,17 @@ void APlayerCharacter::OnHealthChanged(UHealthComponent* HealthComp, float Healt
 
 void APlayerCharacter::PrimaryActionStart()
 {
-		if ( CurrentWeapon != nullptr) {
-			CurrentWeapon->Fire();
+		if ( CurrentWeapon != nullptr ) {
+
+				CurrentWeapon->Fire();
+
+			
 		}
 	
 }
 
 void APlayerCharacter::PrimaryActionStop()
 {
-
 
 }
 

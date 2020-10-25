@@ -4,8 +4,11 @@
 #include "GameFramework/Actor.h"
 #include "Net/UnrealNetwork.h"
 #include "Projectile.h"
-
+#include "Weapon.h"
 #include "ProjectileWeapon.h"
+
+
+
 
 	void AProjectileWeapon::Fire() 
     {

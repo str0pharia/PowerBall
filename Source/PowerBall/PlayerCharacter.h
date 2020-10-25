@@ -11,10 +11,14 @@ class UCameraComponent;
 class USpringArmComponent;
 class UHealthComponent;
 class AWeapon;
+class AProjectileWeapon;
 class UInputComponent;
 class USkeletalMeshComponent;
 class APowerBallGameState;
 class USphereCollision;
+
+
+
 
 UCLASS()
 class POWERBALL_API APlayerCharacter : public ACharacter
@@ -40,19 +44,18 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
 	bool bDied = false;
 
-
 	UPROPERTY(Replicated,VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	AWeapon* CurrentWeapon;
 
+	UFUNCTION(BlueprintCallable, Category = "Actions")
 	void PrimaryActionStart();
-
+	
+	UFUNCTION(BlueprintCallable, Category = "Actions")
 	void PrimaryActionStop();
-
-	bool PossessesBall();
 
 	virtual FVector GetPawnViewLocation() const override; 
 
-	FVector GetBallSocketLocation();
+//	FVector GetBallSocketLocation();
 
 	UHealthComponent* HealthComponent; 
 

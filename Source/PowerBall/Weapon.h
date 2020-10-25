@@ -80,4 +80,10 @@ public:
 
 	float LastFireTime = 0;
 
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Weapon Trigger")
+	bool TriggerOnRelease = false;
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Weapon Trigger")
+	float HoldTriggerScalar = 0.0f;
+
 };
