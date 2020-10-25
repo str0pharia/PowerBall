@@ -6,6 +6,7 @@
 #include "Weapon.h"
 #include "ProjectileWeapon.generated.h"
 
+class AProjectile;
 /**
  * 
  */
@@ -14,8 +15,18 @@ class POWERBALL_API AProjectileWeapon : public AWeapon
 {
 	GENERATED_BODY()
 
+
+
+	public:
+
+	//TSubclassOf<
+	UFUNCTION(Server,Reliable)
+	virtual void SpawnProjectile();
+
 	virtual void Fire() override;
 
 	virtual void SpawnEffects(FVector TraceEnd) override;
-	
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AProjectile> ProjectileActor;
 };

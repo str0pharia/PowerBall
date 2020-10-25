@@ -18,6 +18,8 @@ class POWERBALL_API ABasketBall : public AStaticMeshActor
 	
 	public:
 
+
+/*
     	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "PowerBall")
     	APlayerCharacter* Possessor;
 
@@ -35,10 +37,9 @@ class POWERBALL_API ABasketBall : public AStaticMeshActor
 		UFUNCTION()
     	void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent*  OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
      	
-		//UFUNCTION()
-		//void OnOverlapEnd( UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent*  OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+		UFUNCTION()
+		void OnOverlapEnd( UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent*  OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
 		
-		void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
 		UFUNCTION(Category = "PowerBall")
 		bool IsFree();
@@ -50,6 +51,8 @@ class POWERBALL_API ABasketBall : public AStaticMeshActor
 
 		UFUNCTION()
 		void MoveWithPossessor();
+*/
+		void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
 	protected:
 
@@ -59,6 +62,6 @@ class POWERBALL_API ABasketBall : public AStaticMeshActor
 
 		UStaticMeshComponent* BallMesh;
 			
-		USphereComponent* PickUpSphere;
+	//	USphereComponent* PickUpSphere = nullptr;
 
 };

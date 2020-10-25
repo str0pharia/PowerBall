@@ -116,10 +116,7 @@ void APlayerCharacter::OnHealthChanged(UHealthComponent* HealthComp, float Healt
 
 void APlayerCharacter::PrimaryActionStart()
 {
-		if ( PossessesBall() ) {
-			GetWorld()->GetGameState<APowerBallGameState>()->GetBasketBall()->Launch();
-		}
-		else if ( CurrentWeapon != nullptr) {
+		if ( CurrentWeapon != nullptr) {
 			CurrentWeapon->Fire();
 		}
 	
@@ -176,13 +173,13 @@ FVector APlayerCharacter::GetPawnViewLocation() const
 
 }
 
-
+/*
 bool APlayerCharacter::PossessesBall() 
 {
 	ABasketBall* B = (GetWorld()->GetGameState<APowerBallGameState>())->GetBasketBall();
 	return (B->Possessor == this);
 }
-
+*/
 bool APlayerCharacter::IsAlive() 
 {
 

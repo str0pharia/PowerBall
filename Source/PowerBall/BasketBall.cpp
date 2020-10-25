@@ -14,6 +14,8 @@ ABasketBall::ABasketBall()
 {
 
 		PrimaryActorTick.bCanEverTick = true;
+
+		/*
 	PickUpSphere = CreateDefaultSubobject<USphereComponent>(TEXT("PickUpcollision"));
 
 	PickUpSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
@@ -26,7 +28,7 @@ ABasketBall::ABasketBall()
 	
 	PickUpSphere->OnComponentBeginOverlap.AddDynamic(this,&ABasketBall::OnOverlapBegin);
 	
-
+*/
 	
 	BallMesh = FindComponentByClass<UStaticMeshComponent>();
 
@@ -34,9 +36,10 @@ ABasketBall::ABasketBall()
 
  void ABasketBall::BeginPlay() 
  {
+	 /*
  		Possessor = nullptr;
 	 	LastPossessor = nullptr;
-
+*/
 		(GetWorld()->GetGameState<APowerBallGameState>())->SetBasketBall(this);
 
 	
@@ -46,7 +49,7 @@ ABasketBall::ABasketBall()
 void ABasketBall::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
-	
+	/*
 	
 		if ( nullptr != Possessor ) {
 
@@ -54,7 +57,7 @@ void ABasketBall::Tick(float DeltaTime) {
 		
 		}
 	
-	
+	*/
 	
 }
 
@@ -66,18 +69,17 @@ void ABasketBall::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 
-	DOREPLIFETIME(ABasketBall, Possessor);
-	DOREPLIFETIME(ABasketBall, LastPossessor);
+	//DOREPLIFETIME(ABasketBall, Possessor);
+	//DOREPLIFETIME(ABasketBall, LastPossessor);
 
 }
 
 
-
-
+/*
 void ABasketBall::Possess(APlayerCharacter* Player) 
 {
 
-	/* RPC */
+	
 	if ( GetLocalRole() < ROLE_Authority )
 	{
 		ServerPossess(Player);
@@ -138,16 +140,11 @@ void ABasketBall::MoveWithPossessor()
 	FHitResult Hit;
 	GetRootComponent()->SetWorldLocation(Possessor->GetActorLocation() + Possessor->GetBallSocketLocation() , false, &Hit, ETeleportType::TeleportPhysics);
 
-	//	NegDistanceTraveled += Possessor->GetVelocity().Size() * -0.015f;
-
-	// All platforms should move the same way if there is a possessor.
-//	SetActorLocationAndRotation(Possessor->GetActorLocation() + Possessor->GetActorForwardVector() * 10.0f + FVector(0.0f, 0.0f, 10.0f),
-//		FRotator(NegDistanceTraveled, Possessor->GetActorRotation().Yaw, 0.0f));
 }
 
 void ABasketBall::Launch() 
 {
-	/* RPC */
+
 	if ( GetLocalRole() < ROLE_Authority )
 	{
 
@@ -165,8 +162,8 @@ void ABasketBall::Launch()
 		PickUpSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 
 		BallMesh->SetSimulatePhysics(true);
-//		BallMesh->SetSimulatePhysics(true);
-		//	SetActorLocationAndRotation(Possessor->GetBallSocketLocation(),Possessor->GetActorForwardVector().Rotation());
+		BallMesh->SetSimulatePhysics(true);
+		SetActorLocationAndRotation(Possessor->GetBallSocketLocation(),Possessor->GetActorForwardVector().Rotation());
 
 
 			LastPossessor = Possessor;
@@ -174,7 +171,7 @@ void ABasketBall::Launch()
 
 }
 
-/* Launch Ball RPC */
+
 void ABasketBall::ServerLaunch_Implementation() 
 {
 
@@ -188,4 +185,4 @@ bool ABasketBall::ServerLaunch_Validate()
 }
 
 
-
+*/
