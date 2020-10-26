@@ -9,6 +9,7 @@
 class USkeletalMeshComponent;
 class UParticleSystem;
 class UDamageType;
+class UAnimMontage;
 
 USTRUCT()
 struct FHitScanTrace
@@ -85,5 +86,11 @@ public:
 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Weapon Trigger")
 	float HoldTriggerScalar = 0.0f;
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Weapon Animation")
+	UAnimMontage* PrimaryActionMontage = nullptr;
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Weapon Animation")
+	UAnimMontage* SecondaryActionMontage = nullptr;
 
 };

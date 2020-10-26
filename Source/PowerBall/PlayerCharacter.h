@@ -47,6 +47,12 @@ public:
 	UPROPERTY(Replicated,VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	AWeapon* CurrentWeapon;
 
+	UPROPERTY(ReplicatedUsing=OnRep_PrimaryAction,VisibleAnywhere, BluePrintReadWrite, Category = "States")
+	bool bPrimaryAction = false;
+
+	UPROPERTY(ReplicatedUsing=OnRep_SecondaryAction,VisibleAnywhere, BluePrintReadWrite, Category = "States")
+	bool bSecondaryAction = false;
+
 	UFUNCTION(BlueprintCallable, Category = "Actions")
 	void PrimaryActionStart();
 	
@@ -54,6 +60,12 @@ public:
 	void PrimaryActionStop();
 
 	virtual FVector GetPawnViewLocation() const override; 
+
+	UFUNCTION()
+	void OnRep_PrimaryAction();
+
+	UFUNCTION()
+	void OnRep_SecondaryAction();
 
 //	FVector GetBallSocketLocation();
 
@@ -77,7 +89,9 @@ public:
 
 	void MoveRight(float axis);	
 
+	void OnResetPrimaryAction();
 
+	FTimerHandle PrimaryActionCoolDownTimer;
 
 	USkeletalMeshComponent* PlayerMesh;
 

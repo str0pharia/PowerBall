@@ -4,9 +4,10 @@
 #include "PowerBallGameState.h"
 #include "PlayerCharacterController.h"
 
-
+/*
 float APowerBallGameState::GetServerWorldTimeSeconds() const
 {
+    
     APlayerCharacterController* pc = GetWorld()->GetFirstPlayerController<APlayerCharacterController>();
     
 
@@ -18,8 +19,9 @@ float APowerBallGameState::GetServerWorldTimeSeconds() const
     {
         return GetWorld()->GetTimeSeconds();
     }
+    
 }
-
+*/
 ABasketBall* APowerBallGameState::GetBasketBall()
 {
 

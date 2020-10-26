@@ -10,10 +10,13 @@
 #include "Net/UnrealNetwork.h"
 #include "Engine/Engine.h"
 #include "HealthComponent.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "Weapon.h"
 #include "PowerBallGameState.h"
-
 #include "BasketBall.h"
+
+
+struct FTimerHandle;
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -81,6 +84,70 @@ void APlayerCharacter::BeginPlay()
 
 
 
+void APlayerCharacter::OnRep_PrimaryAction()
+{
+
+
+	if ( CurrentWeapon == nullptr )
+		return;
+
+	if ( CurrentWeapon->PrimaryActionMontage == nullptr) 
+		return;
+
+
+	UAnimInstance* a = GetPlayerMesh()->GetAnimInstance();
+
+	if ( a == nullptr)
+		return;
+
+	if ( !bPrimaryAction && a->IsAnyMontagePlaying() ) 
+	{
+		a->StopAllMontages(0.1f);
+
+	} else if ( bPrimaryAction && !a->IsAnyMontagePlaying()) 
+	{
+
+		float duration = a->Montage_Play(CurrentWeapon->PrimaryActionMontage,0.1f,EMontagePlayReturnType::Duration,0.0f,true);
+
+		
+		GetWorldTimerManager().SetTimer(PrimaryActionCoolDownTimer, this, &APlayerCharacter::OnResetPrimaryAction, 0.0f, false, duration);
+
+	} else {
+
+
+		bPrimaryAction = false;
+		if ( PrimaryActionCoolDownTimer.IsValid() )
+		{
+
+			GetWorldTimerManager().ClearTimer(PrimaryActionCoolDownTimer);
+
+		}
+	}
+}
+
+
+void  APlayerCharacter::OnRep_SecondaryAction()
+{
+
+
+}
+
+
+void APlayerCharacter::OnResetPrimaryAction() 
+{
+
+
+		bPrimaryAction = false;
+	
+		if ( PrimaryActionCoolDownTimer.IsValid())
+		{
+
+			GetWorldTimerManager().ClearTimer(PrimaryActionCoolDownTimer);
+		}
+
+}
+
+
 // Called every frame
 void APlayerCharacter::Tick(float DeltaTime)
 {
@@ -108,17 +175,34 @@ void APlayerCharacter::OnHealthChanged(UHealthComponent* HealthComp, float Healt
 
 void APlayerCharacter::PrimaryActionStart()
 {
-		if ( CurrentWeapon != nullptr ) {
 
-				CurrentWeapon->Fire();
+		if (bPrimaryAction == true)
+			return;
+
+		if ( CurrentWeapon == nullptr )
+			return;
+
+
+		bPrimaryAction = true;
+
+		CurrentWeapon->Fire();
+
 
 			
-		}
+		
 	
 }
 
 void APlayerCharacter::PrimaryActionStop()
 {
+		if (bPrimaryAction == false)
+			return;
+
+		if ( CurrentWeapon == nullptr )
+			return;
+
+
+		bPrimaryAction = false;
 
 }
 
