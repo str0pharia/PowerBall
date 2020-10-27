@@ -1,5 +1,6 @@
 # Penguin Power Ball 
-Online/Local Mulltiplayer TPS/Blood Sports game featuring magical penguin wizards 
+Online/Local Mulltiplayer TPS/Blood Sports game featuring penguins and power-ups.
+
 
 https://www.udemy.com/course/unrealengine-cpp/learn/
 
