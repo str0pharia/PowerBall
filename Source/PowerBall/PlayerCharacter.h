@@ -91,7 +91,7 @@ public:
 
 	void OnResetPrimaryAction();
 
-	FTimerHandle PrimaryActionCoolDownTimer;
+	FTimerHandle PrimaryActionTimer;
 
 	USkeletalMeshComponent* PlayerMesh;
 

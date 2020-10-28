@@ -52,6 +52,8 @@ void APlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 
 
 	DOREPLIFETIME(APlayerCharacter, CurrentWeapon);
+	DOREPLIFETIME(APlayerCharacter, bPrimaryAction);
+	DOREPLIFETIME(APlayerCharacter, bSecondaryAction);
 
 
 
@@ -87,7 +89,7 @@ void APlayerCharacter::BeginPlay()
 void APlayerCharacter::OnRep_PrimaryAction()
 {
 
-
+/*
 	if ( CurrentWeapon == nullptr )
 		return;
 
@@ -123,6 +125,7 @@ void APlayerCharacter::OnRep_PrimaryAction()
 
 		}
 	}
+	*/
 }
 
 
@@ -139,10 +142,10 @@ void APlayerCharacter::OnResetPrimaryAction()
 
 		bPrimaryAction = false;
 	
-		if ( PrimaryActionCoolDownTimer.IsValid())
+		if ( PrimaryActionTimer.IsValid())
 		{
 
-			GetWorldTimerManager().ClearTimer(PrimaryActionCoolDownTimer);
+			GetWorldTimerManager().ClearTimer(PrimaryActionTimer);
 		}
 
 }
@@ -175,7 +178,11 @@ void APlayerCharacter::OnHealthChanged(UHealthComponent* HealthComp, float Healt
 
 void APlayerCharacter::PrimaryActionStart()
 {
-
+/*
+		if ( GetLocalRole() < ROLE_Authority )
+		{
+			PrimaryActionStartServer();			
+		}
 		if (bPrimaryAction == true)
 			return;
 
@@ -184,8 +191,8 @@ void APlayerCharacter::PrimaryActionStart()
 
 
 		bPrimaryAction = true;
-
-		CurrentWeapon->Fire();
+*/
+		//CurrentWeapon->Fire();
 
 
 			
@@ -195,14 +202,17 @@ void APlayerCharacter::PrimaryActionStart()
 
 void APlayerCharacter::PrimaryActionStop()
 {
+
+	/*
 		if (bPrimaryAction == false)
 			return;
 
 		if ( CurrentWeapon == nullptr )
 			return;
 
-
+*/
 		bPrimaryAction = false;
+	
 
 }
 

@@ -4,7 +4,7 @@
 #include "PowerBallGameState.h"
 #include "PlayerCharacterController.h"
 
-/*
+
 float APowerBallGameState::GetServerWorldTimeSeconds() const
 {
     
@@ -21,7 +21,7 @@ float APowerBallGameState::GetServerWorldTimeSeconds() const
     }
     
 }
-*/
+
 ABasketBall* APowerBallGameState::GetBasketBall()
 {
 

@@ -72,7 +72,7 @@ void AWeapon::Fire()
 				AActor* HitActor = Hit.GetActor();
 
 				/* APPLY DAMAGE */	
-				UGameplayStatics::ApplyPointDamage(HitActor,20.0f,ShotDirection,Hit,ActorOwner->GetInstigatorController(),this,DamageType);
+				UGameplayStatics::ApplyPointDamage(HitActor,Damage,ShotDirection,Hit,ActorOwner->GetInstigatorController(),this,DamageType);
 				
 				/* SELECT IMPACT EFFECT BASED ON SURFACE TYPE */ 
 				UParticleSystem* SelectedEffect = nullptr;
