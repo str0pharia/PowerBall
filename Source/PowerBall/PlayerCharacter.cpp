@@ -79,7 +79,7 @@ void APlayerCharacter::BeginPlay()
 			CurrentWeapon->SetOwner(this);
 			CurrentWeapon->AttachToComponent(FindComponentByClass<USkeletalMeshComponent>(),FAttachmentTransformRules::SnapToTargetNotIncludingScale,"WeaponSocket");
 		}
-
+ 
 }
 
 
@@ -89,43 +89,17 @@ void APlayerCharacter::BeginPlay()
 void APlayerCharacter::OnRep_PrimaryAction()
 {
 
-/*
+	
 	if ( CurrentWeapon == nullptr )
 		return;
 
-	if ( CurrentWeapon->PrimaryActionMontage == nullptr) 
-		return;
+	auto initDelay = 0;
+
+	initDelay = ( CurrentWeapon->InitialDelaySeconds > 0.0f ) ? CurrentWeapon->InitialDelaySeconds : CurrentWeapon->HitIntervalSeconds;
 
 
-	UAnimInstance* a = GetPlayerMesh()->GetAnimInstance();
+	GetWorldTimerManager().SetTimer(PrimaryActionTimer, this, &APlayerCharacter::PrimaryActionStop, initDelay, false, CurrentWeapon->HitIntervalSeconds);
 
-	if ( a == nullptr)
-		return;
-
-	if ( !bPrimaryAction && a->IsAnyMontagePlaying() ) 
-	{
-		a->StopAllMontages(0.1f);
-
-	} else if ( bPrimaryAction && !a->IsAnyMontagePlaying()) 
-	{
-
-		float duration = a->Montage_Play(CurrentWeapon->PrimaryActionMontage,0.1f,EMontagePlayReturnType::Duration,0.0f,true);
-
-		
-		GetWorldTimerManager().SetTimer(PrimaryActionCoolDownTimer, this, &APlayerCharacter::OnResetPrimaryAction, 0.0f, false, duration);
-
-	} else {
-
-
-		bPrimaryAction = false;
-		if ( PrimaryActionCoolDownTimer.IsValid() )
-		{
-
-			GetWorldTimerManager().ClearTimer(PrimaryActionCoolDownTimer);
-
-		}
-	}
-	*/
 }
 
 
@@ -134,22 +108,6 @@ void  APlayerCharacter::OnRep_SecondaryAction()
 
 
 }
-
-
-void APlayerCharacter::OnResetPrimaryAction() 
-{
-
-
-		bPrimaryAction = false;
-	
-		if ( PrimaryActionTimer.IsValid())
-		{
-
-			GetWorldTimerManager().ClearTimer(PrimaryActionTimer);
-		}
-
-}
-
 
 // Called every frame
 void APlayerCharacter::Tick(float DeltaTime)
@@ -178,39 +136,28 @@ void APlayerCharacter::OnHealthChanged(UHealthComponent* HealthComp, float Healt
 
 void APlayerCharacter::PrimaryActionStart()
 {
-/*
-		if ( GetLocalRole() < ROLE_Authority )
-		{
-			PrimaryActionStartServer();			
-		}
-		if (bPrimaryAction == true)
-			return;
-
 		if ( CurrentWeapon == nullptr )
 			return;
 
 
+		if ( bPrimaryAction == true)
+			return;
+
+		//if ( GetLocalRole() < ROLE_Authority && IsLocallyControlled() )
 		bPrimaryAction = true;
-*/
-		//CurrentWeapon->Fire();
 
-
-			
-		
-	
+		CurrentWeapon->Fire();
 }
 
 void APlayerCharacter::PrimaryActionStop()
 {
 
-	/*
-		if (bPrimaryAction == false)
-			return;
+		if ( PrimaryActionTimer.IsValid())
+		{
 
-		if ( CurrentWeapon == nullptr )
-			return;
+			GetWorldTimerManager().ClearTimer(PrimaryActionTimer);
+		}
 
-*/
 		bPrimaryAction = false;
 	
 

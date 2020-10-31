@@ -17,9 +17,6 @@ class USkeletalMeshComponent;
 class APowerBallGameState;
 class USphereCollision;
 
-
-
-
 UCLASS()
 class POWERBALL_API APlayerCharacter : public ACharacter
 {
@@ -89,13 +86,8 @@ public:
 
 	void MoveRight(float axis);	
 
-	void OnResetPrimaryAction();
-
 	FTimerHandle PrimaryActionTimer;
 
 	USkeletalMeshComponent* PlayerMesh;
-
 	
-
-
 };

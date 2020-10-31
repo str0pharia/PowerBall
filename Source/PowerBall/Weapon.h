@@ -39,7 +39,6 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Power-Up Equipped Mesh")
 	USkeletalMeshComponent* WeaponMesh = nullptr;
 
-	UFUNCTION(BlueprintCallable, Category = "Power-Up Fire")
 	virtual void Fire();
 
 	UFUNCTION(Server, Reliable, WithValidation) 
