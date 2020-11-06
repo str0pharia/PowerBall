@@ -97,6 +97,9 @@ public:
 
 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Power-Up Trigger")
+	float Duration = 1.f;
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Power-Up Trigger")
 	bool TriggerOnRelease = false;
 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Power-Up Trigger")
