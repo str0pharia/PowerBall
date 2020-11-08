@@ -22,12 +22,18 @@ AHand::AHand()
 
 }
 
-void AHand::ExecuteAction(EGiantHandState State)
+void AHand::ExecuteAction(EGiantHandState State, FVector Velocity, FVector TargetLocation)
 {
 	
 	_State = State;
 
 
+	if ( ProjectileMovement != nullptr ) 
+	{
+		ProjectileMovement->SetVelocityInLocalSpace(Velocity);
+	//	ProjectileMovement->SetVelocityInLocalSpace(FVector::ForwardVector * Speed);
+		ProjectileMovement->Activate();
+	}
 
 }							
 

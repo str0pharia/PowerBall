@@ -37,7 +37,7 @@ public:
 
 	USkeletalMeshComponent* GetMesh();
 
-	void ExecuteAction(EGiantHandState State);
+	void ExecuteAction(EGiantHandState State, FVector Velocity, FVector TargetLocation);
 	void BeginAction();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Hand State/Pose")

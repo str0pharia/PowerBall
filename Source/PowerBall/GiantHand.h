@@ -27,10 +27,6 @@ class POWERBALL_API AGiantHand : public AWeapon
 
 		void StopFire() override;
 
-		void AbortFire() override;
-
-		void ServerAbortFire() override;
-
 		void ServerStopFire() override;
 
 		void SpawnEffects(FVector TraceEnd) override;
@@ -47,12 +43,20 @@ class POWERBALL_API AGiantHand : public AWeapon
 		UPROPERTY(EditDefaultsOnly, Category = "Summon Blueprint")
 		TSubclassOf<AHand> HandTemplate;
 
+		UFUNCTION(BlueprintCallable,Category = "Runtime")
+		FVector GetTraceHit();
+
+	private:
+
 		AHand* HandObjInstance = nullptr;		
 
 		FTimerHandle PrimaryActionTimer;
 
-		FTimerHandle TraceTargetTimer;;
+		FTimerHandle AutoDestructTimer;
 
+		float LastTraceHitTimeStamp = 0.0f;
+
+		FVector LastTraceHit;
 
 		USceneComponent* LockedTarget = nullptr;
 

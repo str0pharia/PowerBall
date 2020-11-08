@@ -3,6 +3,7 @@
 
 #include "GiantHand.h"
 #include "Kismet/GameplayStatics.h"
+#include "DrawDebugHelpers.h"
 #include "Components/SplineComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Engine/Engine.h"
@@ -18,6 +19,7 @@
 
         HitIntervalSeconds = 0.1f;
 
+        Duration = 4.0f;
 
         static ConstructorHelpers::FObjectFinder<UBlueprint> ItemBlueprint(TEXT("Blueprint'/Game/Blueprints/Summon/Hand/HandSummon'"));
         if (ItemBlueprint.Object){
@@ -34,120 +36,81 @@
     }
 
     void AGiantHand::ServerFire()
-    {
-
-        if ( HandObjInstance != nullptr ) 
-        {
-            HandObjInstance->Destroy();
-            HandObjInstance = nullptr;           
-            return;
-        }
-
-		if ( PrimaryActionTimer.IsValid() )
-            return;
-
-        GetWorldTimerManager().SetTimer(TraceTargetTimer,this,&AGiantHand::TraceTarget,0.5f,true,0.5f);
-        GetWorldTimerManager().SetTimer(PrimaryActionTimer,this,&AGiantHand::AbortFire,0.5f,true,0.5f);
-
-
-        
-
-    }
-
-    void AGiantHand::AbortFire()
-    {
-
-        ServerAbortFire();
-
-
-    }
-
-    void AGiantHand::ServerAbortFire() 
-    {
-        if ( TraceTargetTimer.IsValid() )
-            GetWorldTimerManager().ClearTimer(TraceTargetTimer);
-
-        if ( PrimaryActionTimer.IsValid() )
-            GetWorldTimerManager().ClearTimer(PrimaryActionTimer);
-             
+    {      
+        UE_LOG(LogTemp,Warning,TEXT("ServerFire"));
+        LastTraceHitTimeStamp = -1.0f;
+        StartFireTime = GetWorld()->TimeSeconds;
+        LockedTarget = nullptr;
     }
 
 
     void AGiantHand::StopFire() 
     {   
+        TraceTarget();
         ServerStopFire();
     }
-
-
-
 
     // Cast/Trigger Spell
     void AGiantHand::ServerStopFire() 
     {
-
-        if ( PrimaryActionTimer.IsValid() )
-            GetWorldTimerManager().ClearTimer(PrimaryActionTimer);
-
-        if ( TraceTargetTimer.IsValid() )
-            GetWorldTimerManager().ClearTimer(TraceTargetTimer);
-
+        UE_LOG(LogTemp,Warning,TEXT("ServerStopFire"));
+        //GetWorldTimerManager().ClearTimer(PrimaryActionTimer);
         if ( HandObjInstance != nullptr)
             return;
-
-        if ( LockedTarget == nullptr )
-            return;
-
-        
         
         FVector EyeLocation; FRotator EyeRotation;
                 
         GetOwner()->GetActorEyesViewPoint(EyeLocation,EyeRotation);
 
-        FVector ShotDirection = EyeRotation.Vector() * 100.0f;
+        FVector SpawnPoint = EyeLocation + (GetOwner()->GetActorForwardVector() * 20.0);
+        FVector ShotDirection = EyeRotation.Vector() * 1.f;
 
         FActorSpawnParameters params;
 
         params.Owner = GetOwner();
         params.Instigator = UGameplayStatics::GetPlayerPawn(GetWorld(),0);
-
+        bool bHaveAimSolution = false;
+        FVector V;
         //FVector dir = (SelectedPath->SplineEnd - SelectedPath->SplineStart);
-        HandObjInstance = GetWorld()->SpawnActor<AHand>(HandTemplate,GetRootComponent()->GetComponentLocation(),GetRootComponent()->GetComponentRotation(),params);
-        if ( HandObjInstance != nullptr && LockedTarget != nullptr) 
+        HandObjInstance = GetWorld()->SpawnActor<AHand>(HandTemplate,SpawnPoint,ShotDirection.Rotation(),params);
+        if ( HandObjInstance != nullptr) 
         {
 
+            GetWorldTimerManager()->SetTimer(AutoDestructTimer,this,&DestroyHand,Duration,false,0.0f);
+            bHaveAimSolution = UGameplayStatics::SuggestProjectileVelocity(
+                this,
+                V,
+                WeaponMesh->GetSocketLocation(FName("Source")),
+                GetTraceHit(),
+                ProjectileLaunchSpeed,
+                false,
+                0,
+                0,
+                ESuggestProjVelocityTraceOption::DoNotTrace);
 
-            //LastNode = HandObjInstance->GetSplinePath()->AddPathNode(StartPos);
+               // HandObjInstance->ExecuteAction(EGiantHandState::Default,V,HitScanTrace.TraceTo);
 
-           // GetWorldTimerManager().SetTimer(PrimaryActionTimer, this, &AGiantHand::AbortFire, 10.0f, false, 10.0f);
+                HandObjInstance->ExecuteAction(EGiantHandState::Default,FVector(HandObjInstance->GetActorForwardVector() * ProjectileLaunchSpeed),FVector(ShotDirection * 100.0f));
 
-         //   HandObjInstance->GetProjectileMovement()->HomingAccelerationMagnitude = true;
-         //   HandObjInstance->GetProjectileMovement()->bRotationFollowsVelocity = true;
-            HandObjInstance->GetProjectileMovement()->HomingTargetComponent = LockedTarget;
+        } 
 
 
-        } else {
-            AbortFire();
-            
+        StopFireTime = GetWorld()->TimeSeconds;
+
+    }
+
+
+    void AGiantHand::DestroyHand() 
+    {
+        GetWorldTimerManager().ClearTimer(AutoDestructTimer);
+
+        if ( HandObjInstance != nullptr )
+        {
+
+            HandObjInstance->SetVisible(false);
+            HandObjInstance->Destroy();
+            HandObjInstance = nullptr;
         }
-
-     
-                /*
-                FVector EyeLocation; FRotator EyeRotation;
-                
-                GetOwner()->GetActorEyesViewPoint(EyeLocation,EyeRotation);
-
-                FVector ShotDirection = ( !LastNode.IsValid() ) ? WeaponMesh->GetSocketRotation(EffectOriginSocketName).Vector() : LastNode.Rotation.Vector();
-
-
-                EndPos = LastNode.Position + (ShotDirection * 15.0f);
-                HandObjInstance->SetActorRotation(ShotDirection.Rotation());
-
-                HandObjInstance->Move(FVector::DistSquared(StartPos,EndPos));
-                */
-
-               // HandObjInstance->GetOwner()->Destroy();
-                //HandObjInstance = nullptr;
-    
 
     }
 
@@ -173,21 +136,15 @@
         Super::BeginPlay();
     }
 
-    void AGiantHand::ServerTraceTarget_Implementation()
+    void AGiantHand::TraceTarget()
     {
-        TraceTarget();
+        ServerTraceTarget();
     }
 
-    void AGiantHand::TraceTarget() 
+    void AGiantHand::ServerTraceTarget_Implementation() 
     {
 
-        if ( GetLocalRole() < ROLE_Authority )
-        {
-
-            ServerTraceTarget();
-
-        }
-
+        UE_LOG(LogTemp,Warning,TEXT("TraceTarget"));
 
 		/* LINE TRACE: CALCULATE START & STOP POSITIONS */
 		FVector EyeLocation; FRotator EyeRotation;
@@ -195,11 +152,12 @@
 		GetOwner()->GetActorEyesViewPoint(EyeLocation,EyeRotation);
 
 		FVector A = WeaponMesh->GetSocketLocation(EffectOriginSocketName);
-		FVector B = EyeLocation + (EyeRotation.Vector() * 10000);
+		FVector B = EyeLocation + (EyeRotation.Vector() * 100);
 
 		FVector ShotDirection = ( A != FVector(0) ) ? WeaponMesh->GetSocketRotation(EffectOriginSocketName).Vector() : EyeRotation.Vector();
 
 		FVector TracerEndPoint = B;
+        LastTraceHit = B;
 
 		/* LINE TRACE: CONFIGURE PARAMETERS */
 		FCollisionQueryParams QueryParams;
@@ -207,6 +165,7 @@
 		QueryParams.AddIgnoredActor(this);
 		QueryParams.bTraceComplex = true;
 		QueryParams.bReturnPhysicalMaterial = true;
+        DrawDebugLine(GetWorld(),A,B,FColor::White,false,1.0f,0,1.0f);	
 
 		/* PERFORM LINE TRACE */
 		FHitResult Hit;
@@ -214,21 +173,24 @@
 		{
 
 				/* ON HIT */
-				AActor* HitActor = Hit.GetActor();
-
-
-                if ( HitActor != nullptr ) 
-                {
-                    LockedTarget = HitActor->GetRootComponent();
-
-                    if (LockedTarget != nullptr )
-                    {
-                        StopFire();
-                    }
-                }
-
+				//AActor* HitActor = Hit.GetActor();
+				if ( GetLocalRole() == ROLE_Authority) 
+				{
+					HitScanTrace.TraceFrom = A;
+                    HitScanTrace.TraceTo = Hit.Location;
+                    
+				}
+				LastTraceHitTimeStamp = GetWorld()->TimeSeconds;
+                LastTraceHit = Hit.Location;
 
 
         }
 
+
+
+
+    }
+
+    FVector AGiantHand::GetTraceHit() {
+        return LastTraceHit;
     }

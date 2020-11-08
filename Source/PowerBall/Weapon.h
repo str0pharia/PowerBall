@@ -42,13 +42,7 @@ public:
 	virtual void Fire();
 
 	virtual void StopFire();
-
-	virtual void AbortFire();
-
 	
-	UFUNCTION(Server, Reliable) 
-	virtual void ServerAbortFire();
-
 	UFUNCTION(Server, Reliable, WithValidation) 
 	virtual void ServerFire();
 
@@ -93,7 +87,9 @@ public:
 	UFUNCTION()
 	void OnRep_HitScanTrace();
 
-	float LastFireTime = 0;
+	float StartFireTime = 0;
+
+	float StopFireTime = 0;
 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Power-Up Trigger")
 	int Hits = 1;
@@ -107,7 +103,6 @@ public:
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Power-Up Trigger")
 	float CoolDownSeconds = 1.f;
 
-
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Power-Up Trigger")
 	float Duration = 1.f;
 
@@ -116,6 +111,10 @@ public:
 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Power-Up Trigger")
 	float HoldTriggerScalar = 0.0f;
+
+	
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Projectile Power-Up Movement Speed")
+	float ProjectileLaunchSpeed = 5.0f;
 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Power-Up Animation")
 	UAnimMontage* PrimaryActionMontage = nullptr;

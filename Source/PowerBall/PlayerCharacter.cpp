@@ -144,11 +144,8 @@ void APlayerCharacter::PrimaryActionPressed()
 		if ( bPrimaryAction == true)
 			return;
 
-
-		if ( CurrentWeapon->TriggerOnRelease )
-			return;
-
 		bPrimaryAction = true;
+
 
 		CurrentWeapon->Fire();
 
@@ -157,20 +154,10 @@ void APlayerCharacter::PrimaryActionPressed()
 void APlayerCharacter::PrimaryActionReleased()
 {
 
-		if ( !CurrentWeapon->TriggerOnRelease )
-		{
-			if ( PrimaryActionTimer.IsValid() ) 
-				GetWorldTimerManager().ClearTimer(PrimaryActionTimer);
-			
-			bPrimaryAction = false;
-
-		} else if ( CurrentWeapon->TriggerOnRelease ) {
-			bPrimaryAction = true;
-		}
-
-		
-	CurrentWeapon->StopFire();	
-
+	if ( CurrentWeapon != nullptr)
+		CurrentWeapon->StopFire();	
+	
+	bPrimaryAction = false;
 }
 
 

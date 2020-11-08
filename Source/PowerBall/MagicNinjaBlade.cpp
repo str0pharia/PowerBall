@@ -31,7 +31,7 @@ void AMagicNinjaBlade::SpawnEffects(FVector TraceEnd)
 		if ( TracerEffect ) 
 		{
 			FVector SourceLocation = WeaponMesh->GetSocketLocation(EffectOriginSocketName);
-			UParticleSystemComponent* TraceEffectInstance = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(),TracerEffect,SourceLocation);
+			UParticleSystemComponent* TraceEffectInstance = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(),TracerEffect,SourceLocation, (TraceEnd-SourceLocation).Rotation());
 			if ( TraceEffectInstance ) 
 			{
 				TraceEffectInstance->SetVectorParameter("Target",TraceEnd);
@@ -54,6 +54,7 @@ void AMagicNinjaBlade::ServerFire()
 
 
 
+	StartFireTime = GetWorld()->TimeSeconds;
 }
 
 void AMagicNinjaBlade::Hit()
@@ -74,7 +75,7 @@ void AMagicNinjaBlade::Hit()
 
 		FVector ShotDirection = ( A != FVector(0) ) ? WeaponMesh->GetSocketRotation(EffectOriginSocketName).Vector() : EyeRotation.Vector();
 
-		FVector TracerEndPoint = B;
+		FVector TracerEndPoint = A + B;
 
 		/* LINE TRACE: CONFIGURE PARAMETERS */
 		FCollisionQueryParams QueryParams;
@@ -124,16 +125,17 @@ void AMagicNinjaBlade::Hit()
 
 
 		DrawDebugLine(GetWorld(),A,TracerEndPoint,FColor::White,false,1.0f,0,1.0f);	
-
-		/* SPAWN TRIGGER AND/OR TRACER EFFECT */
-		SpawnEffects(TracerEndPoint);
-
 		if ( GetLocalRole() == ROLE_Authority) 
 		{
 			HitScanTrace.TraceTo = TracerEndPoint;
 		}
 
-		LastFireTime = GetWorld()->TimeSeconds;
+
+		/* SPAWN TRIGGER AND/OR TRACER EFFECT */
+		SpawnEffects(TracerEndPoint);
+
+
+
 	}
 
     if ( HitTimer.IsValid() && HitCounter >= 3 )
