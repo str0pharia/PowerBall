@@ -51,10 +51,13 @@ public:
 	bool bSecondaryAction = false;
 
 	UFUNCTION(BlueprintCallable, Category = "Actions")
-	void PrimaryActionStart();
+	void PrimaryActionPressed();
 	
 	UFUNCTION(BlueprintCallable, Category = "Actions")
-	void PrimaryActionStop();
+	void PrimaryActionReleased();
+	
+	UFUNCTION(BlueprintCallable, Category = "Actions")
+	void AbortAction();
 
 	virtual FVector GetPawnViewLocation() const override; 
 

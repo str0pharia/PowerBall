@@ -7,8 +7,6 @@
 #include "GameFramework/PawnMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
-#include "Net/UnrealNetwork.h"
-#include "Engine/Engine.h"
 #include "HealthComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Weapon.h"
@@ -93,15 +91,18 @@ void APlayerCharacter::OnRep_PrimaryAction()
 	if ( CurrentWeapon == nullptr )
 		return;
 
-	auto initDelay = 0;
-
-	initDelay = ( CurrentWeapon->InitialDelaySeconds > 0.0f ) ? CurrentWeapon->InitialDelaySeconds : CurrentWeapon->HitIntervalSeconds;
 
 
-	GetWorldTimerManager().SetTimer(PrimaryActionTimer, this, &APlayerCharacter::PrimaryActionStop, initDelay, false, CurrentWeapon->HitIntervalSeconds);
+
+
+	//auto initDelay = 0;
+
+	//initDelay = ( CurrentWeapon->InitialDelaySeconds > 0.0f ) ? CurrentWeapon->InitialDelaySeconds : CurrentWeapon->HitIntervalSeconds;
+
+
+	GetWorldTimerManager().SetTimer(PrimaryActionTimer, this, &APlayerCharacter::AbortAction, 10.0f, false, 10.0f);
 
 }
-
 
 void  APlayerCharacter::OnRep_SecondaryAction()
 {
@@ -134,7 +135,7 @@ void APlayerCharacter::OnHealthChanged(UHealthComponent* HealthComp, float Healt
 }
 
 
-void APlayerCharacter::PrimaryActionStart()
+void APlayerCharacter::PrimaryActionPressed()
 {
 		if ( CurrentWeapon == nullptr )
 			return;
@@ -143,23 +144,44 @@ void APlayerCharacter::PrimaryActionStart()
 		if ( bPrimaryAction == true)
 			return;
 
-		//if ( GetLocalRole() < ROLE_Authority && IsLocallyControlled() )
+
+		if ( CurrentWeapon->TriggerOnRelease )
+			return;
+
 		bPrimaryAction = true;
 
 		CurrentWeapon->Fire();
+
 }
 
-void APlayerCharacter::PrimaryActionStop()
+void APlayerCharacter::PrimaryActionReleased()
 {
 
-		if ( PrimaryActionTimer.IsValid())
+		if ( !CurrentWeapon->TriggerOnRelease )
 		{
+			if ( PrimaryActionTimer.IsValid() ) 
+				GetWorldTimerManager().ClearTimer(PrimaryActionTimer);
+			
+			bPrimaryAction = false;
 
-			GetWorldTimerManager().ClearTimer(PrimaryActionTimer);
+		} else if ( CurrentWeapon->TriggerOnRelease ) {
+			bPrimaryAction = true;
 		}
 
-		bPrimaryAction = false;
-	
+		
+	CurrentWeapon->StopFire();	
+
+}
+
+
+void APlayerCharacter::AbortAction() 
+{
+
+	bPrimaryAction = false;
+	bSecondaryAction = false;
+
+	if ( PrimaryActionTimer.IsValid() ) 
+		GetWorldTimerManager().ClearTimer(PrimaryActionTimer);
 
 }
 
@@ -192,8 +214,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis("LookUp",this,&APlayerCharacter::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("Turn",this,&APlayerCharacter::AddControllerYawInput);
 
-	PlayerInputComponent->BindAction("ActionButton_A",EInputEvent::IE_Pressed,this,&APlayerCharacter::PrimaryActionStart);
-	PlayerInputComponent->BindAction("ActionButton_A",EInputEvent::IE_Released,this,&APlayerCharacter::PrimaryActionStop);
+	PlayerInputComponent->BindAction("ActionButton_A",EInputEvent::IE_Pressed,this,&APlayerCharacter::PrimaryActionPressed);
+	PlayerInputComponent->BindAction("ActionButton_A",EInputEvent::IE_Released,this,&APlayerCharacter::PrimaryActionReleased);
 }
 
 FVector APlayerCharacter::GetPawnViewLocation() const

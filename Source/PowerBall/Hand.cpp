@@ -3,7 +3,11 @@
 
 #include "Hand.h"
 #include "Components/SplineComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "GameFramework/MovementComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+
 
 // Sets default values
 AHand::AHand()
@@ -13,31 +17,40 @@ AHand::AHand()
 
 	HandMesh = FindComponentByClass<USkeletalMeshComponent>();
 
-	SplineComponent = CreateDefaultSubobject<USplineComponent>(TEXT("SplineComponent"));
-	if ( SplineComponent != nullptr) 
-	{
-		SplineComponent->bDrawDebug = true;
-
-	}
+	ProjectileMovement = FindComponentByClass<UProjectileMovementComponent>();
+	SetReplicates(true);
 
 }
 
-
-USplineComponent* AHand::GetSplineComponent()
+void AHand::ExecuteAction(EGiantHandState State)
 {
-	return SplineComponent;
-}
+	
+	_State = State;
 
+
+
+}							
+
+USkeletalMeshComponent* AHand::GetMesh() 
+{
+	return HandMesh;
+
+}
 void AHand::BeginPlay()
 {
 	Super::BeginPlay();
+
+
+}
+
+void AHand::BeginAction() 
+{
+		//GetWorldTimerManager().SetTimer(ActionTimer,this,&AHand::Move,0.2f,true,0.5);
 	
 }
 
-// Called every frame
-void AHand::Tick(float DeltaTime)
+UProjectileMovementComponent* AHand::GetProjectileMovement() 
 {
-	Super::Tick(DeltaTime);
 
+	return ProjectileMovement;
 }
-

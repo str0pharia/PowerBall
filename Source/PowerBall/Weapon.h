@@ -41,8 +41,20 @@ public:
 
 	virtual void Fire();
 
+	virtual void StopFire();
+
+	virtual void AbortFire();
+
+	
+	UFUNCTION(Server, Reliable) 
+	virtual void ServerAbortFire();
+
 	UFUNCTION(Server, Reliable, WithValidation) 
 	virtual void ServerFire();
+
+	UFUNCTION(Server, Reliable) 
+	virtual void ServerStopFire();
+
 
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 

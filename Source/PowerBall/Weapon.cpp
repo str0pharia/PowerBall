@@ -30,6 +30,38 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 	DOREPLIFETIME_CONDITION(AWeapon, HitScanTrace, COND_SkipOwner);
 }
 
+void AWeapon::AbortFire() 
+{
+	/* RPC */
+	if ( GetLocalRole() < ROLE_Authority )
+	{
+		ServerAbortFire();
+	}
+}
+
+
+void AWeapon::StopFire() 
+{
+	/* RPC */
+	if ( GetLocalRole() < ROLE_Authority )
+	{
+		ServerStopFire();
+	}
+}
+
+
+// Cast/Trigger Spell
+void AWeapon::ServerAbortFire_Implementation() 
+{
+	AbortFire();
+}
+
+// Cast/Trigger Spell
+void AWeapon::ServerStopFire_Implementation() 
+{
+	StopFire();
+}
+
 
 // Cast/Trigger Spell
 void AWeapon::Fire() 
