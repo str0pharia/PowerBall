@@ -221,7 +221,7 @@
                 {
                     LockedTarget = HitActor->GetRootComponent();
 
-                    if (LockedTarget->IsValid() )
+                    if (LockedTarget != nullptr )
                     {
                         StopFire();
                     }
