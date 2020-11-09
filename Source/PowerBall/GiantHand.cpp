@@ -85,7 +85,7 @@
                 FVector A = WeaponMesh->GetSocketLocation(EffectOriginSocketName);
                 FVector B = EyeLocation + (EyeRotation.Vector() * MaxRange);
 
-                ShotDirection = ( A != FVector(0) ) ? (WeaponMesh->GetSocketRotation(EffectOriginSocketName).Vector() + (GetOwner()->GetActorRightVector() * 30.0f) ) : EyeRotation.Vector();
+                ShotDirection = ( A != FVector(0) ) ? WeaponMesh->GetSocketRotation(EffectOriginSocketName).Vector() : EyeRotation.Vector();
                 if ( GetLocalRole() == ROLE_Authority) 
                 {
                     HitScanTrace.TraceFrom = A;
