@@ -18,9 +18,11 @@
 
 	    EffectOriginSocketName = FName("Source");
 
-        HitIntervalSeconds = 0.1f;
-
         Duration = 4.0f;
+
+        MinRange = 100.0f;
+        MaxRange = 350.0f;
+
 
         static ConstructorHelpers::FObjectFinder<UBlueprint> ItemBlueprint(TEXT("Blueprint'/Game/Blueprints/Summon/Hand/HandSummon'"));
         if (ItemBlueprint.Object)
@@ -59,6 +61,9 @@
         //GetWorldTimerManager().ClearTimer(PrimaryActionTimer);
         if ( HandObjInstance != nullptr)
         {
+
+            UE_LOG(LogTemp,Warning,TEXT("HandObjInstance != nullptr"));
+
             return;
         }
         
@@ -73,19 +78,20 @@
 
         params.Owner = GetOwner();
         params.Instigator = UGameplayStatics::GetPlayerPawn(GetWorld(),0);
+		params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
         bool bHaveAimSolution = false;
         FVector V;
         HandObjInstance = GetWorld()->SpawnActor<AHand>(HandTemplate,SpawnPoint,ShotDirection.Rotation(),params);
         if ( HandObjInstance != nullptr) 
         {
 
-                GetWorldTimerManager().SetTimer(AutoDestructTimer,this,&AGiantHand::DestroyHand,Duration,false,0.0f);
+                GetWorldTimerManager().SetTimer(AutoDestructTimer,this,&AGiantHand::DestroyHand,Duration,false,10.0f);
 
             
                 FVector A = WeaponMesh->GetSocketLocation(EffectOriginSocketName);
                 FVector B = EyeLocation + (EyeRotation.Vector() * MaxRange);
 
-                ShotDirection = ( A != FVector(0) ) ? WeaponMesh->GetSocketRotation(EffectOriginSocketName).Vector() : EyeRotation.Vector();
+
                 if ( GetLocalRole() == ROLE_Authority) 
                 {
                     HitScanTrace.TraceFrom = A;
@@ -114,7 +120,12 @@
 
                                 
                     LastTraceHit = result.HitResult.Location;
-                    HitScanTrace.TraceTo = LastTraceHit;
+
+                    if ( GetLocalRole() == ROLE_Authority )
+                    {
+                        HitScanTrace.TraceTo = LastTraceHit;
+
+                    }
 
                     
 
@@ -133,10 +144,14 @@
 
                 if ( bHaveAimSolution )
                 {
+
+                    UE_LOG(LogTemp,Warning,TEXT("found aim solution"));
                     HandObjInstance->ExecuteAction(EGiantHandState::Default,V,GetTraceHit());
 
 
                 } else {
+                    UE_LOG(LogTemp,Warning,TEXT("could not find aim solution"));
+
                     HandObjInstance->ExecuteAction(EGiantHandState::Default,FVector(HandObjInstance->GetActorForwardVector() * ProjectileLaunchSpeed),FVector(ShotDirection * MaxRange));
 
                 }
@@ -162,7 +177,7 @@
         if ( HandObjInstance != nullptr )
         {
 
-            HandObjInstance->GetRootComponent()->SetVisibility(false);
+            //HandObjInstance->GetRootComponent()->SetVisibility(false);
             HandObjInstance->Destroy();
             HandObjInstance = nullptr;
         }
@@ -207,7 +222,7 @@
 		GetOwner()->GetActorEyesViewPoint(EyeLocation,EyeRotation);
 
 		FVector A = WeaponMesh->GetSocketLocation(EffectOriginSocketName);
-		FVector B = EyeLocation + (EyeRotation.Vector() * 100);
+		FVector B = EyeLocation + (EyeRotation.Vector() * MaxRange);
 
 		FVector ShotDirection = ( A != FVector(0) ) ? WeaponMesh->GetSocketRotation(EffectOriginSocketName).Vector() : EyeRotation.Vector();
 

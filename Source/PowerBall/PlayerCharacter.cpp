@@ -100,7 +100,7 @@ void APlayerCharacter::OnRep_PrimaryAction()
 	//initDelay = ( CurrentWeapon->InitialDelaySeconds > 0.0f ) ? CurrentWeapon->InitialDelaySeconds : CurrentWeapon->HitIntervalSeconds;
 
 
-	GetWorldTimerManager().SetTimer(PrimaryActionTimer, this, &APlayerCharacter::AbortAction, 10.0f, false, 10.0f);
+	//GetWorldTimerManager().SetTimer(PrimaryActionTimer, this, &APlayerCharacter::AbortAction, 10.0f, false, 10.0f);
 
 }
 
@@ -145,19 +145,18 @@ void APlayerCharacter::PrimaryActionPressed()
 			return;
 
 		bPrimaryAction = true;
-
-
+		
 		CurrentWeapon->Fire();
 
 }
 
 void APlayerCharacter::PrimaryActionReleased()
 {
-
+	bPrimaryAction = false;
 	if ( CurrentWeapon != nullptr)
 		CurrentWeapon->StopFire();	
 	
-	bPrimaryAction = false;
+
 }
 
 
@@ -167,8 +166,8 @@ void APlayerCharacter::AbortAction()
 	bPrimaryAction = false;
 	bSecondaryAction = false;
 
-	if ( PrimaryActionTimer.IsValid() ) 
-		GetWorldTimerManager().ClearTimer(PrimaryActionTimer);
+
+
 
 }
 
