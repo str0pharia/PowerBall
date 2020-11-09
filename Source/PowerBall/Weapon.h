@@ -112,9 +112,17 @@ public:
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Power-Up Trigger")
 	float HoldTriggerScalar = 0.0f;
 
-	
-	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Projectile Power-Up Movement Speed")
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Power-Up Parameters")
+	float MaxRange = 100.0f;
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Power-Up Parameters")
+	float MinRange = 10.0f;
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Projectile Power-Up Parameters")
 	float ProjectileLaunchSpeed = 5.0f;
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Power-Up Parameters")
+	float Radius = 10.f;
 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Power-Up Animation")
 	UAnimMontage* PrimaryActionMontage = nullptr;

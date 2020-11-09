@@ -31,6 +31,8 @@ class POWERBALL_API AGiantHand : public AWeapon
 
 		void SpawnEffects(FVector TraceEnd) override;
 
+    	void DestroyHand();
+
 		virtual void TraceTarget();
 
 		UFUNCTION(Server, Reliable) 

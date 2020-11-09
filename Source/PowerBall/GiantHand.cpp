@@ -3,6 +3,7 @@
 
 #include "GiantHand.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/GameplayStaticsTypes.h"
 #include "DrawDebugHelpers.h"
 #include "Components/SplineComponent.h"
 #include "Net/UnrealNetwork.h"
@@ -22,7 +23,8 @@
         Duration = 4.0f;
 
         static ConstructorHelpers::FObjectFinder<UBlueprint> ItemBlueprint(TEXT("Blueprint'/Game/Blueprints/Summon/Hand/HandSummon'"));
-        if (ItemBlueprint.Object){
+        if (ItemBlueprint.Object)
+        {
             HandTemplate = (UClass*)ItemBlueprint.Object->GeneratedClass;
         }
 
@@ -46,7 +48,7 @@
 
     void AGiantHand::StopFire() 
     {   
-        TraceTarget();
+        //TraceTarget();
         ServerStopFire();
     }
 
@@ -56,7 +58,9 @@
         UE_LOG(LogTemp,Warning,TEXT("ServerStopFire"));
         //GetWorldTimerManager().ClearTimer(PrimaryActionTimer);
         if ( HandObjInstance != nullptr)
+        {
             return;
+        }
         
         FVector EyeLocation; FRotator EyeRotation;
                 
@@ -71,28 +75,79 @@
         params.Instigator = UGameplayStatics::GetPlayerPawn(GetWorld(),0);
         bool bHaveAimSolution = false;
         FVector V;
-        //FVector dir = (SelectedPath->SplineEnd - SelectedPath->SplineStart);
         HandObjInstance = GetWorld()->SpawnActor<AHand>(HandTemplate,SpawnPoint,ShotDirection.Rotation(),params);
         if ( HandObjInstance != nullptr) 
         {
 
-            GetWorldTimerManager()->SetTimer(AutoDestructTimer,this,&DestroyHand,Duration,false,0.0f);
-            bHaveAimSolution = UGameplayStatics::SuggestProjectileVelocity(
-                this,
-                V,
-                WeaponMesh->GetSocketLocation(FName("Source")),
-                GetTraceHit(),
-                ProjectileLaunchSpeed,
-                false,
-                0,
-                0,
-                ESuggestProjVelocityTraceOption::DoNotTrace);
+                GetWorldTimerManager().SetTimer(AutoDestructTimer,this,&AGiantHand::DestroyHand,Duration,false,0.0f);
 
-               // HandObjInstance->ExecuteAction(EGiantHandState::Default,V,HitScanTrace.TraceTo);
+            
+                FVector A = WeaponMesh->GetSocketLocation(EffectOriginSocketName);
+                FVector B = EyeLocation + (EyeRotation.Vector() * MaxRange);
 
-                HandObjInstance->ExecuteAction(EGiantHandState::Default,FVector(HandObjInstance->GetActorForwardVector() * ProjectileLaunchSpeed),FVector(ShotDirection * 100.0f));
+                ShotDirection = ( A != FVector(0) ) ? (WeaponMesh->GetSocketRotation(EffectOriginSocketName).Vector() + (GetOwner()->GetActorRightVector() * 30.0f) ) : EyeRotation.Vector();
+                if ( GetLocalRole() == ROLE_Authority) 
+                {
+                    HitScanTrace.TraceFrom = A;
+                }
+                FPredictProjectilePathParams pparams;
+                FPredictProjectilePathResult result;
 
-        } 
+                pparams.ActorsToIgnore.Add(GetOwner());
+                pparams.ActorsToIgnore.Add(HandObjInstance);
+                pparams.ActorsToIgnore.Add(this);
+                pparams.bTraceWithChannel = true;
+                pparams.bTraceWithCollision = true;
+                pparams.DrawDebugType = EDrawDebugTrace::ForDuration;
+                pparams.DrawDebugTime = Duration;
+                pparams.ProjectileRadius = Radius;
+                pparams.StartLocation = A;
+                pparams.LaunchVelocity = ShotDirection * ProjectileLaunchSpeed; 
+                pparams.SimFrequency = 10.0f;
+                pparams.TraceChannel = ECC_GameTraceChannel1;
+                pparams.MaxSimTime = Duration;
+
+                if ( UGameplayStatics::PredictProjectilePath(GetWorld(),pparams,result) ) 
+                {
+
+                    UE_LOG(LogTemp,Warning,TEXT("Hit something"));
+
+                                
+                    LastTraceHit = result.HitResult.Location;
+                    HitScanTrace.TraceTo = LastTraceHit;
+
+                    
+
+                }
+
+                bHaveAimSolution = UGameplayStatics::SuggestProjectileVelocity(
+                    this,
+                    V,
+                    WeaponMesh->GetSocketLocation(FName("Source")),
+                    GetTraceHit(),
+                    ProjectileLaunchSpeed,
+                    false,
+                    0,
+                    0,
+                    ESuggestProjVelocityTraceOption::DoNotTrace);
+
+                if ( bHaveAimSolution )
+                {
+                    HandObjInstance->ExecuteAction(EGiantHandState::Default,V,GetTraceHit());
+
+
+                } else {
+                    HandObjInstance->ExecuteAction(EGiantHandState::Default,FVector(HandObjInstance->GetActorForwardVector() * ProjectileLaunchSpeed),FVector(ShotDirection * MaxRange));
+
+                }
+
+                if ( GetLocalRole() == ROLE_Authority) 
+                {
+                    HitScanTrace.TraceTo = GetTraceHit();
+
+                }
+
+        }        
 
 
         StopFireTime = GetWorld()->TimeSeconds;
@@ -100,14 +155,14 @@
     }
 
 
-    void AGiantHand::DestroyHand() 
+    void AGiantHand::DestroyHand()
     {
         GetWorldTimerManager().ClearTimer(AutoDestructTimer);
 
         if ( HandObjInstance != nullptr )
         {
 
-            HandObjInstance->SetVisible(false);
+            HandObjInstance->GetRootComponent()->SetVisibility(false);
             HandObjInstance->Destroy();
             HandObjInstance = nullptr;
         }
@@ -191,6 +246,7 @@
 
     }
 
-    FVector AGiantHand::GetTraceHit() {
+    FVector AGiantHand::GetTraceHit() 
+    {
         return LastTraceHit;
     }
