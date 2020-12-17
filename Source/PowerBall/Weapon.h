@@ -46,7 +46,7 @@ public:
 	UFUNCTION(Server, Reliable, WithValidation) 
 	virtual void ServerFire();
 
-	UFUNCTION(Server, Reliable,WithValidation) 
+	UFUNCTION(Server, Reliable) 
 	virtual void ServerStopFire();
 
 

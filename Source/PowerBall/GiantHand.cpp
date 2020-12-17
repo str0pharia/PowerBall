@@ -27,17 +27,16 @@
         MinRange = 100.0f;
         MaxRange = 350.0f;
 
+      
         bNetLoadOnClient = true;
         SetReplicates(true);
-
-          static ConstructorHelpers::FObjectFinder<UBlueprint> ItemBlueprint(TEXT("Blueprint'/Game/Blueprints/Summon/Hand/HandSummon'"));
+        static ConstructorHelpers::FObjectFinder<UBlueprint> ItemBlueprint(TEXT("Blueprint'/Game/Blueprints/Summon/Hand/HandSummon'"));
         if (ItemBlueprint.Object){
             HandTemplate = (UClass*)ItemBlueprint.Object->GeneratedClass;
         }
 
-    }   
-    
-    
+
+    }
 
     void AGiantHand::Fire()
     {
@@ -87,7 +86,7 @@
     
 
         ProjectileInstance = GetWorld()->SpawnActor(HandTemplate,&SpawnPoint,&Rot,params);
-        OnRep_ProjectileInstance();
+
 
   
             /*
@@ -122,7 +121,7 @@
 
            // ((APlayerCharacter*)UGameplayStatics::GetPlayerPawn(GetWorld(),0))->LaunchHand(EyeLocation,EyeRotation,ShotDirection,GetOwner(),UGameplayStatics::GetPlayerPawn(GetWorld(),0));
 
-        StopFireTime = GetWorld()->TimeSeconds;
+            StopFireTime = GetWorld()->TimeSeconds;
         
      //GetWorldTimerManager().ClearTimer(PrimaryActionTimer);
        
@@ -139,7 +138,7 @@
      
 
     }
-
+    
     void AGiantHand::SpawnEffects(FVector TraceEnd)
     {
 
@@ -155,17 +154,12 @@
     void AGiantHand::BeginPlay() 
     {
         Super::BeginPlay();
-
-        
     }
 
     void AGiantHand::OnRep_ProjectileInstance() 
     {
 
-        	if ( ProjectileInstance != nullptr ) {
-		        ProjectileInstance->GetRootComponent()->SetVisibility(true);
-	        }
+        
     }
-
  
  

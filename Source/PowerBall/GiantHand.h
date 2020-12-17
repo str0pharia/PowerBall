@@ -44,7 +44,7 @@ class POWERBALL_API AGiantHand : public AWeapon
 		TSubclassOf<AHand> HandTemplate;
 
 		void OnRep_ProjectileInstance() override;
-		
+
 	private:
 
 	

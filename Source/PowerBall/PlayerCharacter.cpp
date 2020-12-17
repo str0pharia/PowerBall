@@ -102,6 +102,12 @@ void APlayerCharacter::OnRep_PrimaryAction()
 
 
 
+
+	//auto initDelay = 0;
+
+	//initDelay = ( CurrentWeapon->InitialDelaySeconds > 0.0f ) ? CurrentWeapon->InitialDelaySeconds : CurrentWeapon->HitIntervalSeconds;
+
+
 	GetWorldTimerManager().SetTimer(PrimaryActionTimer, this, &APlayerCharacter::AbortAction, 10.0f, false, 10.0f);
 
 }

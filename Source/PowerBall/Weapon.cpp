@@ -47,22 +47,6 @@ void AWeapon::ServerStopFire_Implementation()
 	StopFire();
 }
 
-void AWeapon::StopFire() 
-{
-	/* RPC */
-	if ( GetLocalRole() < ROLE_Authority )
-	{
-		ServerStopFire();
-	}
-}
-
-
-// Cast/Trigger Spell
-void AWeapon::ServerStopFire_Implementation() 
-{
-	StopFire();
-}
-
 
 // Cast/Trigger Spell
 void AWeapon::Fire() 
@@ -188,20 +172,21 @@ bool AWeapon::ServerFire_Validate()
 	return true; 
 }
 
-bool AWeapon::ServerStopFire_Validate()  
-{ 
-	return true; 
-}
 /* Get Hit Scan */
 void AWeapon::OnRep_HitScanTrace()
 {
 	SpawnEffects(HitScanTrace.TraceTo);
 }
 
+
 void AWeapon::OnRep_ProjectileInstance()
 {
-	if ( ProjectileInstance != nullptr ) {
+	UE_LOG(LogTemp,Warning,TEXT("Replicated projectile instance"));
+
+	if ( ProjectileInstance != nullptr )
+	{
+
 		ProjectileInstance->GetRootComponent()->SetVisibility(true);
 	}
-}
 
+}
