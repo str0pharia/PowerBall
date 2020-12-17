@@ -47,6 +47,22 @@ void AWeapon::ServerStopFire_Implementation()
 	StopFire();
 }
 
+void AWeapon::StopFire() 
+{
+	/* RPC */
+	if ( GetLocalRole() < ROLE_Authority )
+	{
+		ServerStopFire();
+	}
+}
+
+
+// Cast/Trigger Spell
+void AWeapon::ServerStopFire_Implementation() 
+{
+	StopFire();
+}
+
 
 // Cast/Trigger Spell
 void AWeapon::Fire() 
