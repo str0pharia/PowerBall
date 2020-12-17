@@ -28,6 +28,23 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME_CONDITION(AWeapon, HitScanTrace, COND_SkipOwner);
+	DOREPLIFETIME(AWeapon, ProjectileInstance);
+}
+
+void AWeapon::StopFire() 
+{
+	/* RPC */
+	if ( GetLocalRole() < ROLE_Authority )
+	{
+		ServerStopFire();
+	}
+}
+
+
+// Cast/Trigger Spell
+void AWeapon::ServerStopFire_Implementation() 
+{
+	StopFire();
 }
 
 
@@ -70,6 +87,10 @@ void AWeapon::Fire()
 
 				/* ON HIT */
 				AActor* HitActor = Hit.GetActor();
+				if ( GetLocalRole() == ROLE_Authority) 
+				{
+					HitScanTrace.TraceFrom = A;
+				}
 
 				/* APPLY DAMAGE */	
 				UGameplayStatics::ApplyPointDamage(HitActor,Damage,ShotDirection,Hit,ActorOwner->GetInstigatorController(),this,DamageType);
@@ -113,7 +134,7 @@ void AWeapon::Fire()
 			HitScanTrace.TraceTo = TracerEndPoint;
 		}
 
-		LastFireTime = GetWorld()->TimeSeconds;
+		StartFireTime = GetWorld()->TimeSeconds;
 	}
 
 }
@@ -151,11 +172,20 @@ bool AWeapon::ServerFire_Validate()
 	return true; 
 }
 
+bool AWeapon::ServerStopFire_Validate()  
+{ 
+	return true; 
+}
 /* Get Hit Scan */
 void AWeapon::OnRep_HitScanTrace()
 {
 	SpawnEffects(HitScanTrace.TraceTo);
 }
 
-
+void AWeapon::OnRep_ProjectileInstance()
+{
+	if ( ProjectileInstance != nullptr ) {
+		ProjectileInstance->GetRootComponent()->SetVisibility(true);
+	}
+}
 

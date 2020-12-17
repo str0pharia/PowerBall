@@ -62,6 +62,6 @@ class POWERBALL_API ABasketBall : public AStaticMeshActor
 
 		UStaticMeshComponent* BallMesh;
 			
-	//	USphereComponent* PickUpSphere = nullptr;
+	//		USphereComponent* PickUpSphere = nullptr;
 
 };

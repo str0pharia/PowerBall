@@ -31,7 +31,8 @@ ASimpleProjectile::ASimpleProjectile()
 	}
 
 	//Definition for the Mesh that will serve as our visual representation.
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> DefaultMesh(TEXT("/Game/Models/Simple/Cube"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> DefaultMesh(TEXT("StaticMesh'/Game/VFXBundle/CubeVFX/StaticMesh/SM_Cube.SM_Cube'"));
+
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	StaticMesh->SetupAttachment(RootComponent);
 
@@ -43,23 +44,23 @@ ASimpleProjectile::ASimpleProjectile()
 		StaticMesh->SetRelativeScale3D(FVector(0.75f, 0.75f, 0.75f));
 	}
 
-	static ConstructorHelpers::FObjectFinder<UParticleSystem> DefaultExplosionEffect(TEXT("/Game/Particles/P_ky_hit2.P_ky_hit2"));
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> DefaultExplosionEffect(TEXT("ParticleSystem'/Game/VFXBundle/CubeVFX/ParticleSystem/P_ImpactMedium.P_ImpactMedium'"));
 
-if (DefaultExplosionEffect.Succeeded())
-{
-    ExplosionEffect = DefaultExplosionEffect.Object;
-}
+	if (DefaultExplosionEffect.Succeeded())
+	{
+		ExplosionEffect = DefaultExplosionEffect.Object;
+	}
 
-//Definition for the Projectile Movement Component.
-ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
-ProjectileMovementComponent->SetUpdatedComponent(SphereComponent);
-ProjectileMovementComponent->InitialSpeed = 1500.0f;
-ProjectileMovementComponent->MaxSpeed = 1500.0f;
+	//Definition for the Projectile Movement Component.
+	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
+	ProjectileMovementComponent->SetUpdatedComponent(SphereComponent);
+	ProjectileMovementComponent->InitialSpeed = 1500.0f;
+	ProjectileMovementComponent->MaxSpeed = 1500.0f;
 
-ProjectileMovementComponent->ProjectileGravityScale = 0.0f;
+	ProjectileMovementComponent->ProjectileGravityScale = 0.0f;
 
-DamageType = UDamageType::StaticClass();
-Damage = 10.0f;
+	DamageType = UDamageType::StaticClass();
+	Damage = 10.0f;
 
 }
 
@@ -70,12 +71,11 @@ void ASimpleProjectile::BeginPlay()
 	
 }
 
-void ASimpleProjectile::SetVelocity(FVector velocity) {
-
+void ASimpleProjectile::SetVelocity(FVector velocity) 
+{
 	ProjectileMovementComponent->SetVelocityInLocalSpace(velocity);
-
-
 }
+
 // Called every frame
 void ASimpleProjectile::Tick(float DeltaTime)
 {

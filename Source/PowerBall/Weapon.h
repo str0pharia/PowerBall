@@ -41,8 +41,14 @@ public:
 
 	virtual void Fire();
 
+	virtual void StopFire();
+	
 	UFUNCTION(Server, Reliable, WithValidation) 
 	virtual void ServerFire();
+
+	UFUNCTION(Server, Reliable,WithValidation) 
+	virtual void ServerStopFire();
+
 
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
@@ -78,10 +84,18 @@ public:
 	UPROPERTY(ReplicatedUsing=OnRep_HitScanTrace)
 	FHitScanTrace HitScanTrace; 
 
+	UPROPERTY(ReplicatedUsing=OnRep_ProjectileInstance)
+	AActor* ProjectileInstance; 
+
 	UFUNCTION()
 	void OnRep_HitScanTrace();
 
-	float LastFireTime = 0;
+	UFUNCTION()
+	virtual void OnRep_ProjectileInstance();
+
+	float StartFireTime = 0;
+
+	float StopFireTime = 0;
 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Power-Up Trigger")
 	int Hits = 1;
@@ -95,7 +109,6 @@ public:
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Power-Up Trigger")
 	float CoolDownSeconds = 1.f;
 
-
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Power-Up Trigger")
 	float Duration = 1.f;
 
@@ -104,6 +117,18 @@ public:
 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Power-Up Trigger")
 	float HoldTriggerScalar = 0.0f;
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Power-Up Parameters")
+	float MaxRange = 100.0f;
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Power-Up Parameters")
+	float MinRange = 10.0f;
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Projectile Power-Up Parameters")
+	float ProjectileLaunchSpeed = 5.0f;
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Power-Up Parameters")
+	float Radius = 10.f;
 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "Power-Up Animation")
 	UAnimMontage* PrimaryActionMontage = nullptr;

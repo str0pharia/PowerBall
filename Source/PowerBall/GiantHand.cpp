@@ -3,7 +3,15 @@
 
 #include "GiantHand.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/GameplayStaticsTypes.h"
+#include "DrawDebugHelpers.h"
 #include "Components/SplineComponent.h"
+#include "Net/UnrealNetwork.h"
+#include "Engine/Engine.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+#include "GameFramework/Controller.h"
+#include "PlayerCharacterController.h"
+#include "PlayerCharacter.h"
 #include "Hand.h"
 
     AGiantHand::AGiantHand() 
@@ -11,99 +19,127 @@
 
         PrimaryActorTick.bCanEverTick = true;
 
+	    //
 	    EffectOriginSocketName = FName("Source");
 
-	    SetReplicates(true);
+        Duration = 4.0f;
 
-        static ConstructorHelpers::FObjectFinder<UBlueprint> ItemBlueprint(TEXT("Blueprint'/Game/Blueprints/Summon/Hand/HandSummon'"));
+        MinRange = 100.0f;
+        MaxRange = 350.0f;
+
+        bNetLoadOnClient = true;
+        SetReplicates(true);
+
+          static ConstructorHelpers::FObjectFinder<UBlueprint> ItemBlueprint(TEXT("Blueprint'/Game/Blueprints/Summon/Hand/HandSummon'"));
         if (ItemBlueprint.Object){
             HandTemplate = (UClass*)ItemBlueprint.Object->GeneratedClass;
         }
-    }
+
+    }   
+    
+    
 
     void AGiantHand::Fire()
     {
-        ServerFire();
-    }
-
-    void AGiantHand::ServerFire()
-    {
         
-        Recording = true;
-
-
-
-        GetWorldTimerManager().SetTimer(RecordPathTimer, this, &AGiantHand::AddSplinePoint, 1.0f, true, HitIntervalSeconds);
-
-
-    }
-
-    void AGiantHand::AddSplinePoint() 
-    {
-        float LocationX;
-        float LocationY;
-
-        if ( UGameplayStatics::GetPlayerController(GetWorld(),0)->GetMousePosition(LocationX,LocationY) )
-        {   
-            FVector Location;
-            FVector Direction;
-
-            if ( UGameplayStatics::GetPlayerController(GetWorld(),0)->DeprojectScreenPositionToWorld(LocationX,LocationY,Location, Direction) ) 
-            {
-              //  SplineComponent->AddSplinePoint(Location, ESplineCoordinateSpace::World, true);
-                
-                FSplinePoint p;
-                p.Position = Location;
-                p.Rotation = Direction.Rotation();
-                SplinePoints.Add(p);
-
-            }
-
-
-        } 
-   
-        if ( MaxTicks >= Duration )
+        if ( GetLocalRole() < ROLE_Authority ) 
         {
-            Recording = false;
-            GetWorldTimerManager().ClearTimer(RecordPathTimer);
-
-            if (HandTemplate != nullptr && HandObjInstance == nullptr)
-            {
-
-                FActorSpawnParameters params;
-
-                params.Name = "Hand";
-                params.Owner = GetOwner();
-                params.Instigator = UGameplayStatics::GetPlayerPawn(GetWorld(),0);
-                const FVector loc = GetOwner()->GetActorLocation();
-                const FRotator rot = GetOwner()->GetActorRotation();
-                HandObjInstance = GetWorld()->SpawnActor<AHand>(HandTemplate,loc,rot,params);
-        
-                if ( HandObjInstance != nullptr)
-                {
-                    FSplinePoint p;
-                    p.Position = HandObjInstance->GetActorLocation();
-                    p.Rotation = GetOwner()->GetActorForwardVector().Rotation();
-                    
-                    SetOrigin(p);
-                    HandObjInstance->GetSplineComponent()->AddPoints(SplinePoints);
-                }
-            }
-            
-
+            ServerFire();
+            return;
         }
 
-    }
+        StartFireTime = GetWorld()->TimeSeconds;
 
-    void AGiantHand::SetOrigin(FSplinePoint SplinePoint)
-    {
 
-      //  SplineComponent->AddSplinePoint(Location,)
-
-        SplinePoints.Add(SplinePoint);
     }
 
     
+    void AGiantHand::ServerFire()
+    {      
+    
+
+        Fire();
+    }
+
+
+    void AGiantHand::StopFire() 
+    {   
+
+        if ( GetLocalRole() < ROLE_Authority)
+        {
+        
+            ServerStopFire();
+            
+            return;
+        }
+
+
+        FVector V;
+        FActorSpawnParameters params;
+        params.Owner = GetOwner();
+        params.Instigator = UGameplayStatics::GetPlayerPawn(GetWorld(),0);
+        FVector EyeLocation; FRotator EyeRotation;
+        GetOwner()->GetActorEyesViewPoint(EyeLocation,EyeRotation);
+
+        FVector SpawnPoint = EyeLocation + (GetOwner()->GetActorForwardVector() * 20.0);
+        FVector ShotDirection = EyeRotation.Vector() * 1.f;
+        FRotator Rot = ShotDirection.Rotation();
+    
+
+        ProjectileInstance = GetWorld()->SpawnActor(HandTemplate,&SpawnPoint,&Rot,params);
+        OnRep_ProjectileInstance();
+
+  
+            /*
+            bool bHaveAimSolution = UGameplayStatics::SuggestProjectileVelocity(
+            this,
+            V,
+            WeaponMesh->GetSocketLocation(FName("Source")),
+            GetTraceHit(),
+            ProjectileLaunchSpeed,
+            false,
+            0,
+            0,
+            ESuggestProjVelocityTraceOption::DoNotTrace);
+
+
+            if ( bHaveAimSolution )
+            {
+
+                UE_LOG(LogTemp,Warning,TEXT("found aim solution"));
+                 hand->ExecuteAction(EGiantHandState::Default,V,FVector(0),Duration);
+
+
+            } else {
+                UE_LOG(LogTemp,Warning,TEXT("could not find aim solution"));
+
+                hand->ExecuteAction(EGiantHandState::Default,FVector(hand->GetActorForwardVector() * ProjectileLaunchSpeed),FVector(ShotDirection * MaxRange),Duration);
+
+            }
+
+            */
+
+
+           // ((APlayerCharacter*)UGameplayStatics::GetPlayerPawn(GetWorld(),0))->LaunchHand(EyeLocation,EyeRotation,ShotDirection,GetOwner(),UGameplayStatics::GetPlayerPawn(GetWorld(),0));
+
+        StopFireTime = GetWorld()->TimeSeconds;
+        
+     //GetWorldTimerManager().ClearTimer(PrimaryActionTimer);
+       
+    }
+
+    // Cast/Trigger Spell
+    void AGiantHand::ServerStopFire() 
+    {
+
+
+        StopFire();
+
+ 
+     
+
+    }
+
     void AGiantHand::SpawnEffects(FVector TraceEnd)
     {
 
@@ -114,12 +150,22 @@
 
         Super::Tick(DeltaTime);
 
- 
-
-
-    }   
+     }   
     
     void AGiantHand::BeginPlay() 
     {
         Super::BeginPlay();
+
+        
     }
+
+    void AGiantHand::OnRep_ProjectileInstance() 
+    {
+
+        	if ( ProjectileInstance != nullptr ) {
+		        ProjectileInstance->GetRootComponent()->SetVisibility(true);
+	        }
+    }
+
+ 
+ 

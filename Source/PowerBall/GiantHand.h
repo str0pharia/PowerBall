@@ -4,12 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Weapon.h"
-#include "Components/SplineComponent.h"
+#include "Hand.h"
 #include "GiantHand.generated.h"
 
-class USplineComponent;
-struct FSplinePoint;
 class AHand;
+class USceneComponent;
 
 /**
  * 
@@ -27,35 +26,32 @@ class POWERBALL_API AGiantHand : public AWeapon
 
 		void ServerFire() override;
 
+		void StopFire() override;
+
+		void ServerStopFire() override;
+
 		void SpawnEffects(FVector TraceEnd) override;
+
+		void SetAttackState(EGiantHandState State);
+
+		EGiantHandState	GetAttackState();
 
 		virtual void Tick(float DeltaTime) override;
 
 		virtual void BeginPlay() override;
 
-		void AddSplinePoint();
-
-		void SetOrigin(FSplinePoint SplinePoint);
-	
-		UPROPERTY(EditDefaultsOnly, Category = "Template")
+		UPROPERTY(EditDefaultsOnly,Category = "Setup")
 		TSubclassOf<AHand> HandTemplate;
 
-
+		void OnRep_ProjectileInstance() override;
+		
 	private:
 
-		bool Recording = false;
+	
+		FTimerHandle PrimaryActionTimer;
 
-		float MaxTicks = 5.0f;
+		EGiantHandState AttackState = EGiantHandState::Default;
 
-		AHand* HandObjInstance = nullptr;		
-
-
-	//	USplineMeshComponent* Spline = nullptr;
-
-		FTimerHandle RecordPathTimer;
-
-
-		TArray<FSplinePoint> SplinePoints;
 
 
 	

@@ -40,7 +40,12 @@ ABasketBall::ABasketBall()
  		Possessor = nullptr;
 	 	LastPossessor = nullptr;
 */
-		(GetWorld()->GetGameState<APowerBallGameState>())->SetBasketBall(this);
+
+	Super::BeginPlay();
+	(GetWorld()->GetGameState<APowerBallGameState>())->SetBasketBall(this);
+
+
+
 
 	
  }

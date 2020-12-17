@@ -3,7 +3,11 @@
 
 #include "Hand.h"
 #include "Components/SplineComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "GameFramework/MovementComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+
 
 // Sets default values
 AHand::AHand()
@@ -11,33 +15,46 @@ AHand::AHand()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+
 	HandMesh = FindComponentByClass<USkeletalMeshComponent>();
-
-	SplineComponent = CreateDefaultSubobject<USplineComponent>(TEXT("SplineComponent"));
-	if ( SplineComponent != nullptr) 
-	{
-		SplineComponent->bDrawDebug = true;
-
-	}
-
-}
-
-
-USplineComponent* AHand::GetSplineComponent()
-{
-	return SplineComponent;
-}
-
-void AHand::BeginPlay()
-{
-	Super::BeginPlay();
 	
-}
+	ProjectileMovement = FindComponentByClass<UProjectileMovementComponent>();
 
-// Called every frame
-void AHand::Tick(float DeltaTime)
+	bNetLoadOnClient = true;		
+	SetReplicates(true);
+}
+		
+
+USkeletalMeshComponent* AHand::GetMesh() 
 {
-	Super::Tick(DeltaTime);
 
+	return HandMesh;
 }
 
+void AHand::BeginPlay() 
+{
+
+	Super::BeginPlay();
+
+	if ( ProjectileMovement != nullptr ) 
+	{
+		GetWorldTimerManager().SetTimer(AutoDestructTimer,this,&AHand::DestroyHand,4.0f);
+
+		ProjectileMovement->SetVelocityInLocalSpace(GetInstigator()->GetActorForwardVector() * 100.f);
+
+		ProjectileMovement->Activate();
+	}
+}
+
+UProjectileMovementComponent* AHand::GetProjectileMovement() 
+{
+	return ProjectileMovement;
+}
+
+void AHand::DestroyHand()
+{
+	GetWorldTimerManager().ClearTimer(AutoDestructTimer);
+	UE_LOG(LogTemp,Warning,TEXT("Auto destruct timer expired, destroying hand ...."));
+	GetRootComponent()->SetVisibility(false);
+	this->Destroy();
+}

@@ -6,7 +6,6 @@
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
 
-
 class UCameraComponent;
 class USpringArmComponent;
 class UHealthComponent;
@@ -16,6 +15,7 @@ class UInputComponent;
 class USkeletalMeshComponent;
 class APowerBallGameState;
 class USphereCollision;
+class AHand;
 
 UCLASS()
 class POWERBALL_API APlayerCharacter : public ACharacter
@@ -51,10 +51,13 @@ public:
 	bool bSecondaryAction = false;
 
 	UFUNCTION(BlueprintCallable, Category = "Actions")
-	void PrimaryActionStart();
+	void PrimaryActionPressed();
 	
 	UFUNCTION(BlueprintCallable, Category = "Actions")
-	void PrimaryActionStop();
+	void PrimaryActionReleased();
+	
+	UFUNCTION(BlueprintCallable, Category = "Actions")
+	void AbortAction();
 
 	virtual FVector GetPawnViewLocation() const override; 
 
@@ -64,8 +67,6 @@ public:
 	UFUNCTION()
 	void OnRep_SecondaryAction();
 
-//	FVector GetBallSocketLocation();
-
 	UHealthComponent* HealthComponent; 
 
 	UPROPERTY(EditDefaultsOnly, Category = "Player")
@@ -74,9 +75,14 @@ public:
 	UFUNCTION()
 	void OnHealthChanged(UHealthComponent* HealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
-	bool IsAlive();
+	bool IsAlive();	
 
 	USkeletalMeshComponent* GetPlayerMesh();
+
+	void DestroyHand();
+
+	UPROPERTY(EditDefaultsOnly, Category = "Summon Blueprint")
+	TSubclassOf<AHand> HandTemplate;
 
   protected:
 
@@ -88,6 +94,10 @@ public:
 
 	FTimerHandle PrimaryActionTimer;
 
+	FTimerHandle AutoDestructTimer;
+
 	USkeletalMeshComponent* PlayerMesh;
+
+	AHand* HandObjInstance;
 	
 };
