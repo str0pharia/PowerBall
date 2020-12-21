@@ -15,46 +15,42 @@ AHand::AHand()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-
 	HandMesh = FindComponentByClass<USkeletalMeshComponent>();
-	
-	ProjectileMovement = FindComponentByClass<UProjectileMovementComponent>();
 
-	bNetLoadOnClient = true;		
+	ProjectileMovement = FindComponentByClass<UProjectileMovementComponent>();
 	SetReplicates(true);
+
 }
-		
+
+void AHand::ExecuteAction(EGiantHandState State)
+{
+	
+	_State = State;
+
+
+
+}							
 
 USkeletalMeshComponent* AHand::GetMesh() 
 {
-
 	return HandMesh;
+
 }
-
-void AHand::BeginPlay() 
+void AHand::BeginPlay()
 {
-
 	Super::BeginPlay();
 
-	if ( ProjectileMovement != nullptr ) 
-	{
-		GetWorldTimerManager().SetTimer(AutoDestructTimer,this,&AHand::DestroyHand,4.0f);
 
-		ProjectileMovement->SetVelocityInLocalSpace(GetInstigator()->GetActorForwardVector() * 100.f);
+}
 
-		ProjectileMovement->Activate();
-	}
+void AHand::BeginAction() 
+{
+		//GetWorldTimerManager().SetTimer(ActionTimer,this,&AHand::Move,0.2f,true,0.5);
+	
 }
 
 UProjectileMovementComponent* AHand::GetProjectileMovement() 
 {
-	return ProjectileMovement;
-}
 
-void AHand::DestroyHand()
-{
-	GetWorldTimerManager().ClearTimer(AutoDestructTimer);
-	UE_LOG(LogTemp,Warning,TEXT("Auto destruct timer expired, destroying hand ...."));
-	GetRootComponent()->SetVisibility(false);
-	this->Destroy();
+	return ProjectileMovement;
 }

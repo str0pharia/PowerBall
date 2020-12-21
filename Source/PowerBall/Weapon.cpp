@@ -161,6 +161,11 @@ void AWeapon::SpawnEffects(FVector TraceEnd)
 		}
 }
 
+ void AWeapon::BeginPlay() {
+
+	 Super::BeginPlay();
+ }
+
 /* Magic Attack RPC */
 void AWeapon::ServerFire_Implementation() 
 {

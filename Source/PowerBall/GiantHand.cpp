@@ -16,8 +16,13 @@
 
     AGiantHand::AGiantHand() 
     {
+        static ConstructorHelpers::FObjectFinder<UBlueprint> ItemBlueprint(TEXT("Blueprint'/Game/Blueprints/Summon/Hand/HandSummon'"));
+        if (ItemBlueprint.Object){
+            HandTemplate = (UClass*)ItemBlueprint.Object->GeneratedClass;
+        }
 
-        PrimaryActorTick.bCanEverTick = true;
+
+        PrimaryActorTick.bCanEverTick = false;
 
 	    //
 	    EffectOriginSocketName = FName("Source");
@@ -27,26 +32,23 @@
         MinRange = 100.0f;
         MaxRange = 350.0f;
 
-      
+ 
         bNetLoadOnClient = true;
         SetReplicates(true);
-        static ConstructorHelpers::FObjectFinder<UBlueprint> ItemBlueprint(TEXT("Blueprint'/Game/Blueprints/Summon/Hand/HandSummon'"));
-        if (ItemBlueprint.Object){
-            HandTemplate = (UClass*)ItemBlueprint.Object->GeneratedClass;
-        }
-
 
     }
 
     void AGiantHand::Fire()
     {
         
-        if ( GetLocalRole() < ROLE_Authority ) 
+    
+        if ( GetLocalRole() < ROLE_Authority)
         {
+            
             ServerFire();
-            return;
-        }
+        
 
+        } 
         StartFireTime = GetWorld()->TimeSeconds;
 
 
@@ -55,40 +57,22 @@
     
     void AGiantHand::ServerFire()
     {      
-    
 
-        Fire();
+      
     }
 
 
     void AGiantHand::StopFire() 
     {   
+   
 
-        if ( GetLocalRole() < ROLE_Authority)
+        if ( GetLocalRole() <= ROLE_Authority)
         {
-        
-            ServerStopFire();
             
-            return;
-        }
+            ServerStopFire();
+        
 
-
-        FVector V;
-        FActorSpawnParameters params;
-        params.Owner = GetOwner();
-        params.Instigator = UGameplayStatics::GetPlayerPawn(GetWorld(),0);
-        FVector EyeLocation; FRotator EyeRotation;
-        GetOwner()->GetActorEyesViewPoint(EyeLocation,EyeRotation);
-
-        FVector SpawnPoint = EyeLocation + (GetOwner()->GetActorForwardVector() * 20.0);
-        FVector ShotDirection = EyeRotation.Vector() * 1.f;
-        FRotator Rot = ShotDirection.Rotation();
-    
-
-        ProjectileInstance = GetWorld()->SpawnActor(HandTemplate,&SpawnPoint,&Rot,params);
-
-
-  
+        } 
             /*
             bool bHaveAimSolution = UGameplayStatics::SuggestProjectileVelocity(
             this,
@@ -121,9 +105,9 @@
 
            // ((APlayerCharacter*)UGameplayStatics::GetPlayerPawn(GetWorld(),0))->LaunchHand(EyeLocation,EyeRotation,ShotDirection,GetOwner(),UGameplayStatics::GetPlayerPawn(GetWorld(),0));
 
-            StopFireTime = GetWorld()->TimeSeconds;
-        
-     //GetWorldTimerManager().ClearTimer(PrimaryActionTimer);
+     
+     StopFireTime = GetWorld()->TimeSeconds;
+     GetWorldTimerManager().ClearTimer(PrimaryActionTimer);
        
     }
 
@@ -132,7 +116,23 @@
     {
 
 
-        StopFire();
+       
+            FVector V;
+            FActorSpawnParameters params;
+            params.Owner = UGameplayStatics::GetPlayerPawn(GetWorld(),0);
+            params.Instigator = UGameplayStatics::GetPlayerPawn(GetWorld(),0);
+            FVector EyeLocation; FRotator EyeRotation;
+            GetOwner()->GetActorEyesViewPoint(EyeLocation,EyeRotation);
+
+            FVector SpawnPoint = EyeLocation + (GetOwner()->GetActorForwardVector() * 20.0);
+            FVector ShotDirection = EyeRotation.Vector() * 1.f;
+            FRotator Rot = ShotDirection.Rotation();
+        
+            
+            ProjectileInstance = GetWorld()->SpawnActor(HandTemplate,&SpawnPoint,&Rot,params);
+        
+
+            OnRep_ProjectileInstance();
 
  
      
@@ -143,23 +143,16 @@
     {
 
     }
-    
-    void AGiantHand::Tick(float DeltaTime) 
-    {
 
-        Super::Tick(DeltaTime);
-
-     }   
     
-    void AGiantHand::BeginPlay() 
-    {
-        Super::BeginPlay();
-    }
 
     void AGiantHand::OnRep_ProjectileInstance() 
     {
+        Super::OnRep_ProjectileInstance();
 
+        if ( ProjectileInstance != nullptr )
+            ProjectileInstance->GetRootComponent()->SetVisibility(true);
         
     }
  
- 
+    

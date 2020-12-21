@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -18,9 +16,10 @@ enum EGiantHandState
 	Default			UMETA(DisplayName = "Default"),
 	Fist			UMETA(DisplayName = "Fist"),
 	Grab_Crush 		UMETA(DisplayName = "Catch/Grab"),
+	Swipe_Slap		UMETA(DisplayName = "Swipe"),
 	Poke			UMETA(DisplayName = "Poke"),
 	Stop			UMETA(DisplayName = "Stop"),
-	Crush_Flatten	UMETA(DisplayName = "Crush"),
+	Crush_Flatten	UMETA(DisplayName = "Stop"),
 	Finger_Gun		UMETA(DisplayName = "FingerGun")
 
 };
@@ -31,28 +30,32 @@ class POWERBALL_API AHand : public APawn
 	GENERATED_BODY()
 	
 public:	
-
+	// Sets default values for this actor's properties
 	AHand();
 
 	USkeletalMeshComponent* GetMesh();
+
+	void ExecuteAction(EGiantHandState State);
+	void BeginAction();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Hand State/Pose")
 	TEnumAsByte<EGiantHandState> _State = EGiantHandState::Default;
 
 	UProjectileMovementComponent* GetProjectileMovement();
-
-	virtual void BeginPlay() override;
 	
 
 protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
 
 	USkeletalMeshComponent* HandMesh = nullptr;
 
 	UProjectileMovementComponent* ProjectileMovement = nullptr;
 
-	FTimerHandle AutoDestructTimer;
+	
+	FTimerHandle ActionTimer;
 
-	void DestroyHand();
-
+public:	
+	// Called every frame
 
 };

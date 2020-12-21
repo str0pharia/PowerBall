@@ -26,8 +26,6 @@ public:
 
 	APlayerCharacter();
 
-	virtual void Tick(float DeltaTime) override;
-
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -79,10 +77,6 @@ public:
 
 	USkeletalMeshComponent* GetPlayerMesh();
 
-	void DestroyHand();
-
-	UPROPERTY(EditDefaultsOnly, Category = "Summon Blueprint")
-	TSubclassOf<AHand> HandTemplate;
 
   protected:
 
@@ -94,10 +88,8 @@ public:
 
 	FTimerHandle PrimaryActionTimer;
 
-	FTimerHandle AutoDestructTimer;
-
 	USkeletalMeshComponent* PlayerMesh;
 
-	AHand* HandObjInstance;
+
 	
 };

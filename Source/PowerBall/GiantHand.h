@@ -36,15 +36,13 @@ class POWERBALL_API AGiantHand : public AWeapon
 
 		EGiantHandState	GetAttackState();
 
-		virtual void Tick(float DeltaTime) override;
-
-		virtual void BeginPlay() override;
-
 		UPROPERTY(EditDefaultsOnly,Category = "Setup")
 		TSubclassOf<AHand> HandTemplate;
 
-		void OnRep_ProjectileInstance() override;
+		void OnRep_ProjectileInstance();
 
+		void SpawnHand();
+		
 	private:
 
 	

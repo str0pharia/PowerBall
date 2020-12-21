@@ -119,11 +119,6 @@ void  APlayerCharacter::OnRep_SecondaryAction()
 }
 
 // Called every frame
-void APlayerCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
 
 
 void APlayerCharacter::OnHealthChanged(UHealthComponent* HealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
@@ -170,9 +165,6 @@ void APlayerCharacter::PrimaryActionReleased()
 
 void APlayerCharacter::AbortAction() 
 {
-
-	bPrimaryAction = false;
-	bSecondaryAction = false;
 
 
 

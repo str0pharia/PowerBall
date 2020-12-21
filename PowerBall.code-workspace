@@ -10,26 +10,7 @@
 		}
 	],
 	"settings": {
-		"typescript.tsc.autoDetect": "off",
-		"files.associations": {
-			"__config": "cpp",
-			"__nullptr": "cpp",
-			"deque": "cpp",
-			"hash_map": "cpp",
-			"hash_set": "cpp",
-			"list": "cpp",
-			"map": "cpp",
-			"set": "cpp",
-			"vector": "cpp",
-			"xhash": "cpp",
-			"xtree": "cpp",
-			"unordered_map": "cpp",
-			"xstring": "cpp",
-			"functional": "cpp",
-			"string": "cpp",
-			"unordered_set": "cpp",
-			"*.rh": "cpp"
-		}
+		"typescript.tsc.autoDetect": "off"
 	},
 	"extensions": {
 		"recommendations": [

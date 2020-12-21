@@ -39,6 +39,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Power-Up Equipped Mesh")
 	USkeletalMeshComponent* WeaponMesh = nullptr;
 
+	virtual void BeginPlay();
+
 	virtual void Fire();
 
 	virtual void StopFire();
