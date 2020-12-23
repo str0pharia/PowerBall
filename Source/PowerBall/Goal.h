@@ -4,32 +4,36 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "PowerUp.generated.h"
+#include "Goal.generated.h"
 
 
 class USphereComponent;
-class UDecalComponent;
+class UStaticMeshComponent;
 
 UCLASS()
-class POWERBALL_API APowerUp : public AActor
+class POWERBALL_API AGoal : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	APowerUp();
+	AGoal();
+
+	UPROPERTY(EditDefaultsOnly,Category = "Team")
+	int Team;
+
+
+	void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult );
+
+	USphereComponent* BaseCollision = nullptr;
+
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UPROPERTY(VisibleAnywhere,Category = "Pick-Ups")
-	USphereComponent* SphereComp;
 
-	UPROPERTY(VisibleAnywhere,Category = "Power-Ups")
-	UDecalComponent* DecalComp;
 
-	virtual void NotifyActorBeginOverlap(AActor* Other) override;
 
 public:	
 	// Called every frame

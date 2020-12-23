@@ -2,12 +2,23 @@
 
 
 #include "PowerUp.h"
+#include "Components/SphereComponent.h"
+#include "Components/DecalComponent.h"
 
 // Sets default values
 APowerUp::APowerUp()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+
+
+	SphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
+	RootComponent = SphereComp;
+
+	DecalComp = CreateDefaultSubobject<UDecalComponent>(TEXT("DecalComp"));
+	
+	DecalComp->SetupAttachment(RootComponent);
 
 }
 
@@ -25,3 +36,8 @@ void APowerUp::Tick(float DeltaTime)
 
 }
 
+void APowerUp::NotifyActorBeginOverlap(AActor* Other)
+{
+
+	Super::NotifyActorBeginOverlap(Other);
+}

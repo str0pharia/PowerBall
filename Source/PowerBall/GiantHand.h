@@ -33,15 +33,16 @@ class POWERBALL_API AGiantHand : public AWeapon
 		void SpawnEffects(FVector TraceEnd) override;
 
 		void SetAttackState(EGiantHandState State);
-
 		EGiantHandState	GetAttackState();
+
+		UFUNCTION(Server, Reliable, WithValidation)
+		void SpawnHand();
 
 		UPROPERTY(EditDefaultsOnly,Category = "Setup")
 		TSubclassOf<AHand> HandTemplate;
 
 		void OnRep_ProjectileInstance();
 
-		void SpawnHand();
 		
 	private:
 

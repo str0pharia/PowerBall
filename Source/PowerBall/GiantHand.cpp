@@ -65,7 +65,7 @@
     void AGiantHand::StopFire() 
     {   
    
-
+/*
         if ( GetLocalRole() <= ROLE_Authority)
         {
             
@@ -73,6 +73,26 @@
         
 
         } 
+*/
+
+
+        SpawnHand();
+/*
+
+            FVector V;
+            FActorSpawnParameters params;
+            params.Owner = UGameplayStatics::GetPlayerPawn(GetWorld(),0);
+            params.Instigator = UGameplayStatics::GetPlayerPawn(GetWorld(),0);
+            FVector EyeLocation; FRotator EyeRotation;
+            GetOwner()->GetActorEyesViewPoint(EyeLocation,EyeRotation);
+
+            FVector SpawnPoint = EyeLocation + (GetOwner()->GetActorForwardVector() * 20.0);
+            FVector ShotDirection = EyeRotation.Vector() * 1.f;
+            FRotator Rot = ShotDirection.Rotation();
+        
+            
+            ProjectileInstance = GetWorld()->SpawnActor(HandTemplate,&SpawnPoint,&Rot,params);
+*/        
             /*
             bool bHaveAimSolution = UGameplayStatics::SuggestProjectileVelocity(
             this,
@@ -117,6 +137,23 @@
 
 
        
+           //Fire();
+
+           // OnRep_ProjectileInstance();
+
+ 
+     
+
+    }
+    
+    void AGiantHand::SpawnEffects(FVector TraceEnd)
+    {
+
+    }
+
+    void AGiantHand::SpawnHand_Implementation()
+    {
+
             FVector V;
             FActorSpawnParameters params;
             params.Owner = UGameplayStatics::GetPlayerPawn(GetWorld(),0);
@@ -129,22 +166,15 @@
             FRotator Rot = ShotDirection.Rotation();
         
             
-            ProjectileInstance = GetWorld()->SpawnActor(HandTemplate,&SpawnPoint,&Rot,params);
-        
-
-            OnRep_ProjectileInstance();
-
- 
-     
-
+            GetWorld()->SpawnActor(HandTemplate,&SpawnPoint,&Rot,params);
     }
-    
-    void AGiantHand::SpawnEffects(FVector TraceEnd)
+
+    bool AGiantHand::SpawnHand_Validate()
     {
-
+        return true;
     }
 
-    
+
 
     void AGiantHand::OnRep_ProjectileInstance() 
     {
