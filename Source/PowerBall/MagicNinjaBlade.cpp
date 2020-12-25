@@ -41,19 +41,12 @@ void AMagicNinjaBlade::SpawnEffects(FVector TraceEnd)
 
 void AMagicNinjaBlade::Fire()
 {
-
-
     ServerFire();
-	
-  
 }
 
 void AMagicNinjaBlade::ServerFire()
 {
 	GetWorldTimerManager().SetTimer(HitTimer, this, &AMagicNinjaBlade::Hit, 1.0f, true, 2.0f);
-
-
-
 	StartFireTime = GetWorld()->TimeSeconds;
 }
 

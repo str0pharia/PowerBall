@@ -16,8 +16,6 @@ class POWERBALL_API ABasketBall : public AStaticMeshActor
 
 	ABasketBall();
 	
-	
-
 	protected:
 
     	//virtual void BeginPlay();

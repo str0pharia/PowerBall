@@ -48,12 +48,45 @@ public:
 	UPROPERTY(ReplicatedUsing=OnRep_SecondaryAction,VisibleAnywhere, BluePrintReadWrite, Category = "States")
 	bool bSecondaryAction = false;
 
+	UPROPERTY(ReplicatedUsing=OnRep_PushBallAction,VisibleAnywhere, BluePrintReadWrite, Category = "States")
+	bool bPushBallAction = false;
+
+	UPROPERTY(ReplicatedUsing=OnRep_PullBallAction,VisibleAnywhere, BluePrintReadWrite, Category = "States")
+	bool bPullBallAction = false;
+
+	//UPROPERTY(ReplicatedUsing=OnRep_TelekineticAction,VisibleAnywhere, BluePrintReadWrite, Category = "States")
+	//bool bPrimaryDefensiveAction = false;
+
+	//UPROPERTY(ReplicatedUsing=OnRep_TelekineticAction,VisibleAnywhere, BluePrintReadWrite, Category = "States")
+	//bool bSecondaryDefensiveAction = false;
+
 	UFUNCTION(BlueprintCallable, Category = "Actions")
 	void PrimaryActionPressed();
 	
 	UFUNCTION(BlueprintCallable, Category = "Actions")
 	void PrimaryActionReleased();
+
+	UFUNCTION(BlueprintCallable, Category = "Actions")
+	void SecondaryActionPressed();
 	
+	UFUNCTION(BlueprintCallable, Category = "Actions")
+	void SecondaryActionReleased();
+
+
+	UFUNCTION(BlueprintCallable, Category = "Actions")
+	void BeginPushBallAction();
+	
+	UFUNCTION(BlueprintCallable, Category = "Actions")
+	void EndPushBallAction();
+	
+
+	UFUNCTION(BlueprintCallable, Category = "Actions")
+	void BeginPullBallAction();
+	
+	UFUNCTION(BlueprintCallable, Category = "Actions")
+	void EndPullBallAction();
+	
+
 	UFUNCTION(BlueprintCallable, Category = "Actions")
 	void AbortAction();
 
@@ -65,6 +98,11 @@ public:
 	UFUNCTION()
 	void OnRep_SecondaryAction();
 
+	UFUNCTION()
+	void OnRep_PushBallAction();
+
+	UFUNCTION()
+	void OnRep_PullBallAction();
 	UHealthComponent* HealthComponent; 
 
 	UPROPERTY(EditDefaultsOnly, Category = "Player")
@@ -76,7 +114,20 @@ public:
 	bool IsAlive();	
 
 	USkeletalMeshComponent* GetPlayerMesh();
+	
+	UFUNCTION(Server, Reliable, WithValidation) 
+	virtual void ServerBeginPushBallAction();
 
+	UFUNCTION(Server, Reliable, WithValidation) 
+	virtual void ServerBeginPullBallAction();
+
+	void PushBall();
+	void PullBall();
+	UFUNCTION(Server, Reliable, WithValidation) 
+	void ServerPushBall();
+
+	UFUNCTION(Server, Reliable, WithValidation) 
+	void ServerPullBall();
 
   protected:
 
@@ -87,9 +138,13 @@ public:
 	void MoveRight(float axis);	
 
 	FTimerHandle PrimaryActionTimer;
-
-	USkeletalMeshComponent* PlayerMesh;
-
-
+	FTimerHandle PushBallActionTimer;
+	FTimerHandle PullBallActionTimer;
 	
+	USkeletalMeshComponent* PlayerMesh;
+	
+	float PushBallActionTimestamp;
+	float PullBallActionTimestamp;
+
+
 };
